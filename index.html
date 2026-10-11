@@ -1,0 +1,1310 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ระบบพิมพ์สติกเกอร์ชั่งส่วนผสม (จากไฟล์ Stock คงเหลือ)</title>
+
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://unpkg.com/@phosphor-icons/web"></script>
+<!-- QR Code generator (qrcode-generator, MIT License, (c) Kazuhiko Arase) — ฝังไว้ในไฟล์ ใช้งานได้แม้ไม่มีอินเทอร์เน็ต -->
+<script>var qrcode=function(){var t=function(t,r){var e=t,n=g[r],o=null,i=0,a=null,u=[],f={},c=function(t,r){o=function(t){for(var r=new Array(t),e=0;e<t;e+=1){r[e]=new Array(t);for(var n=0;n<t;n+=1)r[e][n]=null}return r}(i=4*e+17),l(0,0),l(i-7,0),l(0,i-7),s(),h(),d(t,r),e>=7&&v(t),null==a&&(a=p(e,n,u)),w(a,r)},l=function(t,r){for(var e=-1;e<=7;e+=1)if(!(t+e<=-1||i<=t+e))for(var n=-1;n<=7;n+=1)r+n<=-1||i<=r+n||(o[t+e][r+n]=0<=e&&e<=6&&(0==n||6==n)||0<=n&&n<=6&&(0==e||6==e)||2<=e&&e<=4&&2<=n&&n<=4)},h=function(){for(var t=8;t<i-8;t+=1)null==o[t][6]&&(o[t][6]=t%2==0);for(var r=8;r<i-8;r+=1)null==o[6][r]&&(o[6][r]=r%2==0)},s=function(){for(var t=B.getPatternPosition(e),r=0;r<t.length;r+=1)for(var n=0;n<t.length;n+=1){var i=t[r],a=t[n];if(null==o[i][a])for(var u=-2;u<=2;u+=1)for(var f=-2;f<=2;f+=1)o[i+u][a+f]=-2==u||2==u||-2==f||2==f||0==u&&0==f}},v=function(t){for(var r=B.getBCHTypeNumber(e),n=0;n<18;n+=1){var a=!t&&1==(r>>n&1);o[Math.floor(n/3)][n%3+i-8-3]=a}for(n=0;n<18;n+=1){a=!t&&1==(r>>n&1);o[n%3+i-8-3][Math.floor(n/3)]=a}},d=function(t,r){for(var e=n<<3|r,a=B.getBCHTypeInfo(e),u=0;u<15;u+=1){var f=!t&&1==(a>>u&1);u<6?o[u][8]=f:u<8?o[u+1][8]=f:o[i-15+u][8]=f}for(u=0;u<15;u+=1){f=!t&&1==(a>>u&1);u<8?o[8][i-u-1]=f:u<9?o[8][15-u-1+1]=f:o[8][15-u-1]=f}o[i-8][8]=!t},w=function(t,r){for(var e=-1,n=i-1,a=7,u=0,f=B.getMaskFunction(r),c=i-1;c>0;c-=2)for(6==c&&(c-=1);;){for(var g=0;g<2;g+=1)if(null==o[n][c-g]){var l=!1;u<t.length&&(l=1==(t[u]>>>a&1)),f(n,c-g)&&(l=!l),o[n][c-g]=l,-1==(a-=1)&&(u+=1,a=7)}if((n+=e)<0||i<=n){n-=e,e=-e;break}}},p=function(t,r,e){for(var n=A.getRSBlocks(t,r),o=b(),i=0;i<e.length;i+=1){var a=e[i];o.put(a.getMode(),4),o.put(a.getLength(),B.getLengthInBits(a.getMode(),t)),a.write(o)}var u=0;for(i=0;i<n.length;i+=1)u+=n[i].dataCount;if(o.getLengthInBits()>8*u)throw"code length overflow. ("+o.getLengthInBits()+">"+8*u+")";for(o.getLengthInBits()+4<=8*u&&o.put(0,4);o.getLengthInBits()%8!=0;)o.putBit(!1);for(;!(o.getLengthInBits()>=8*u||(o.put(236,8),o.getLengthInBits()>=8*u));)o.put(17,8);return function(t,r){for(var e=0,n=0,o=0,i=new Array(r.length),a=new Array(r.length),u=0;u<r.length;u+=1){var f=r[u].dataCount,c=r[u].totalCount-f;n=Math.max(n,f),o=Math.max(o,c),i[u]=new Array(f);for(var g=0;g<i[u].length;g+=1)i[u][g]=255&t.getBuffer()[g+e];e+=f;var l=B.getErrorCorrectPolynomial(c),h=k(i[u],l.getLength()-1).mod(l);for(a[u]=new Array(l.getLength()-1),g=0;g<a[u].length;g+=1){var s=g+h.getLength()-a[u].length;a[u][g]=s>=0?h.getAt(s):0}}var v=0;for(g=0;g<r.length;g+=1)v+=r[g].totalCount;var d=new Array(v),w=0;for(g=0;g<n;g+=1)for(u=0;u<r.length;u+=1)g<i[u].length&&(d[w]=i[u][g],w+=1);for(g=0;g<o;g+=1)for(u=0;u<r.length;u+=1)g<a[u].length&&(d[w]=a[u][g],w+=1);return d}(o,n)};f.addData=function(t,r){var e=null;switch(r=r||"Byte"){case"Numeric":e=M(t);break;case"Alphanumeric":e=x(t);break;case"Byte":e=m(t);break;case"Kanji":e=L(t);break;default:throw"mode:"+r}u.push(e),a=null},f.isDark=function(t,r){if(t<0||i<=t||r<0||i<=r)throw t+","+r;return o[t][r]},f.getModuleCount=function(){return i},f.make=function(){if(e<1){for(var t=1;t<40;t++){for(var r=A.getRSBlocks(t,n),o=b(),i=0;i<u.length;i++){var a=u[i];o.put(a.getMode(),4),o.put(a.getLength(),B.getLengthInBits(a.getMode(),t)),a.write(o)}var g=0;for(i=0;i<r.length;i++)g+=r[i].dataCount;if(o.getLengthInBits()<=8*g)break}e=t}c(!1,function(){for(var t=0,r=0,e=0;e<8;e+=1){c(!0,e);var n=B.getLostPoint(f);(0==e||t>n)&&(t=n,r=e)}return r}())},f.createTableTag=function(t,r){t=t||2;var e="";e+='<table style="',e+=" border-width: 0px; border-style: none;",e+=" border-collapse: collapse;",e+=" padding: 0px; margin: "+(r=void 0===r?4*t:r)+"px;",e+='">',e+="<tbody>";for(var n=0;n<f.getModuleCount();n+=1){e+="<tr>";for(var o=0;o<f.getModuleCount();o+=1)e+='<td style="',e+=" border-width: 0px; border-style: none;",e+=" border-collapse: collapse;",e+=" padding: 0px; margin: 0px;",e+=" width: "+t+"px;",e+=" height: "+t+"px;",e+=" background-color: ",e+=f.isDark(n,o)?"#000000":"#ffffff",e+=";",e+='"/>';e+="</tr>"}return e+="</tbody>",e+="</table>"},f.createSvgTag=function(t,r,e,n){var o={};"object"==typeof arguments[0]&&(t=(o=arguments[0]).cellSize,r=o.margin,e=o.alt,n=o.title),t=t||2,r=void 0===r?4*t:r,(e="string"==typeof e?{text:e}:e||{}).text=e.text||null,e.id=e.text?e.id||"qrcode-description":null,(n="string"==typeof n?{text:n}:n||{}).text=n.text||null,n.id=n.text?n.id||"qrcode-title":null;var i,a,u,c,g=f.getModuleCount()*t+2*r,l="";for(c="l"+t+",0 0,"+t+" -"+t+",0 0,-"+t+"z ",l+='<svg version="1.1" xmlns="http://www.w3.org/2000/svg"',l+=o.scalable?"":' width="'+g+'px" height="'+g+'px"',l+=' viewBox="0 0 '+g+" "+g+'" ',l+=' preserveAspectRatio="xMinYMin meet"',l+=n.text||e.text?' role="img" aria-labelledby="'+y([n.id,e.id].join(" ").trim())+'"':"",l+=">",l+=n.text?'<title id="'+y(n.id)+'">'+y(n.text)+"</title>":"",l+=e.text?'<description id="'+y(e.id)+'">'+y(e.text)+"</description>":"",l+='<rect width="100%" height="100%" fill="white" cx="0" cy="0"/>',l+='<path d="',a=0;a<f.getModuleCount();a+=1)for(u=a*t+r,i=0;i<f.getModuleCount();i+=1)f.isDark(a,i)&&(l+="M"+(i*t+r)+","+u+c);return l+='" stroke="transparent" fill="black"/>',l+="</svg>"},f.createDataURL=function(t,r){t=t||2,r=void 0===r?4*t:r;var e=f.getModuleCount()*t+2*r,n=r,o=e-r;return I(e,e,function(r,e){if(n<=r&&r<o&&n<=e&&e<o){var i=Math.floor((r-n)/t),a=Math.floor((e-n)/t);return f.isDark(a,i)?0:1}return 1})},f.createImgTag=function(t,r,e){t=t||2,r=void 0===r?4*t:r;var n=f.getModuleCount()*t+2*r,o="";return o+="<img",o+=' src="',o+=f.createDataURL(t,r),o+='"',o+=' width="',o+=n,o+='"',o+=' height="',o+=n,o+='"',e&&(o+=' alt="',o+=y(e),o+='"'),o+="/>"};var y=function(t){for(var r="",e=0;e<t.length;e+=1){var n=t.charAt(e);switch(n){case"<":r+="&lt;";break;case">":r+="&gt;";break;case"&":r+="&amp;";break;case'"':r+="&quot;";break;default:r+=n}}return r};return f.createASCII=function(t,r){if((t=t||1)<2)return function(t){t=void 0===t?2:t;var r,e,n,o,i,a=1*f.getModuleCount()+2*t,u=t,c=a-t,g={"██":"█","█ ":"▀"," █":"▄","  ":" "},l={"██":"▀","█ ":"▀"," █":" ","  ":" "},h="";for(r=0;r<a;r+=2){for(n=Math.floor((r-u)/1),o=Math.floor((r+1-u)/1),e=0;e<a;e+=1)i="█",u<=e&&e<c&&u<=r&&r<c&&f.isDark(n,Math.floor((e-u)/1))&&(i=" "),u<=e&&e<c&&u<=r+1&&r+1<c&&f.isDark(o,Math.floor((e-u)/1))?i+=" ":i+="█",h+=t<1&&r+1>=c?l[i]:g[i];h+="\n"}return a%2&&t>0?h.substring(0,h.length-a-1)+Array(a+1).join("▀"):h.substring(0,h.length-1)}(r);t-=1,r=void 0===r?2*t:r;var e,n,o,i,a=f.getModuleCount()*t+2*r,u=r,c=a-r,g=Array(t+1).join("██"),l=Array(t+1).join("  "),h="",s="";for(e=0;e<a;e+=1){for(o=Math.floor((e-u)/t),s="",n=0;n<a;n+=1)i=1,u<=n&&n<c&&u<=e&&e<c&&f.isDark(o,Math.floor((n-u)/t))&&(i=0),s+=i?g:l;for(o=0;o<t;o+=1)h+=s+"\n"}return h.substring(0,h.length-1)},f.renderTo2dContext=function(t,r){r=r||2;for(var e=f.getModuleCount(),n=0;n<e;n++)for(var o=0;o<e;o++)t.fillStyle=f.isDark(n,o)?"black":"white",t.fillRect(o*r,n*r,r,r)},f};t.stringToBytes=(t.stringToBytesFuncs={default:function(t){for(var r=[],e=0;e<t.length;e+=1){var n=t.charCodeAt(e);r.push(255&n)}return r}}).default,t.createStringToBytes=function(t,r){var e=function(){for(var e=S(t),n=function(){var t=e.read();if(-1==t)throw"eof";return t},o=0,i={};;){var a=e.read();if(-1==a)break;var u=n(),f=n()<<8|n();i[String.fromCharCode(a<<8|u)]=f,o+=1}if(o!=r)throw o+" != "+r;return i}(),n="?".charCodeAt(0);return function(t){for(var r=[],o=0;o<t.length;o+=1){var i=t.charCodeAt(o);if(i<128)r.push(i);else{var a=e[t.charAt(o)];"number"==typeof a?(255&a)==a?r.push(a):(r.push(a>>>8),r.push(255&a)):r.push(n)}}return r}};var r,e,n,o,i,a=1,u=2,f=4,c=8,g={L:1,M:0,Q:3,H:2},l=0,h=1,s=2,v=3,d=4,w=5,p=6,y=7,B=(r=[[],[6,18],[6,22],[6,26],[6,30],[6,34],[6,22,38],[6,24,42],[6,26,46],[6,28,50],[6,30,54],[6,32,58],[6,34,62],[6,26,46,66],[6,26,48,70],[6,26,50,74],[6,30,54,78],[6,30,56,82],[6,30,58,86],[6,34,62,90],[6,28,50,72,94],[6,26,50,74,98],[6,30,54,78,102],[6,28,54,80,106],[6,32,58,84,110],[6,30,58,86,114],[6,34,62,90,118],[6,26,50,74,98,122],[6,30,54,78,102,126],[6,26,52,78,104,130],[6,30,56,82,108,134],[6,34,60,86,112,138],[6,30,58,86,114,142],[6,34,62,90,118,146],[6,30,54,78,102,126,150],[6,24,50,76,102,128,154],[6,28,54,80,106,132,158],[6,32,58,84,110,136,162],[6,26,54,82,110,138,166],[6,30,58,86,114,142,170]],e=1335,n=7973,i=function(t){for(var r=0;0!=t;)r+=1,t>>>=1;return r},(o={}).getBCHTypeInfo=function(t){for(var r=t<<10;i(r)-i(e)>=0;)r^=e<<i(r)-i(e);return 21522^(t<<10|r)},o.getBCHTypeNumber=function(t){for(var r=t<<12;i(r)-i(n)>=0;)r^=n<<i(r)-i(n);return t<<12|r},o.getPatternPosition=function(t){return r[t-1]},o.getMaskFunction=function(t){switch(t){case l:return function(t,r){return(t+r)%2==0};case h:return function(t,r){return t%2==0};case s:return function(t,r){return r%3==0};case v:return function(t,r){return(t+r)%3==0};case d:return function(t,r){return(Math.floor(t/2)+Math.floor(r/3))%2==0};case w:return function(t,r){return t*r%2+t*r%3==0};case p:return function(t,r){return(t*r%2+t*r%3)%2==0};case y:return function(t,r){return(t*r%3+(t+r)%2)%2==0};default:throw"bad maskPattern:"+t}},o.getErrorCorrectPolynomial=function(t){for(var r=k([1],0),e=0;e<t;e+=1)r=r.multiply(k([1,C.gexp(e)],0));return r},o.getLengthInBits=function(t,r){if(1<=r&&r<10)switch(t){case a:return 10;case u:return 9;case f:case c:return 8;default:throw"mode:"+t}else if(r<27)switch(t){case a:return 12;case u:return 11;case f:return 16;case c:return 10;default:throw"mode:"+t}else{if(!(r<41))throw"type:"+r;switch(t){case a:return 14;case u:return 13;case f:return 16;case c:return 12;default:throw"mode:"+t}}},o.getLostPoint=function(t){for(var r=t.getModuleCount(),e=0,n=0;n<r;n+=1)for(var o=0;o<r;o+=1){for(var i=0,a=t.isDark(n,o),u=-1;u<=1;u+=1)if(!(n+u<0||r<=n+u))for(var f=-1;f<=1;f+=1)o+f<0||r<=o+f||0==u&&0==f||a==t.isDark(n+u,o+f)&&(i+=1);i>5&&(e+=3+i-5)}for(n=0;n<r-1;n+=1)for(o=0;o<r-1;o+=1){var c=0;t.isDark(n,o)&&(c+=1),t.isDark(n+1,o)&&(c+=1),t.isDark(n,o+1)&&(c+=1),t.isDark(n+1,o+1)&&(c+=1),0!=c&&4!=c||(e+=3)}for(n=0;n<r;n+=1)for(o=0;o<r-6;o+=1)t.isDark(n,o)&&!t.isDark(n,o+1)&&t.isDark(n,o+2)&&t.isDark(n,o+3)&&t.isDark(n,o+4)&&!t.isDark(n,o+5)&&t.isDark(n,o+6)&&(e+=40);for(o=0;o<r;o+=1)for(n=0;n<r-6;n+=1)t.isDark(n,o)&&!t.isDark(n+1,o)&&t.isDark(n+2,o)&&t.isDark(n+3,o)&&t.isDark(n+4,o)&&!t.isDark(n+5,o)&&t.isDark(n+6,o)&&(e+=40);var g=0;for(o=0;o<r;o+=1)for(n=0;n<r;n+=1)t.isDark(n,o)&&(g+=1);return e+=Math.abs(100*g/r/r-50)/5*10},o),C=function(){for(var t=new Array(256),r=new Array(256),e=0;e<8;e+=1)t[e]=1<<e;for(e=8;e<256;e+=1)t[e]=t[e-4]^t[e-5]^t[e-6]^t[e-8];for(e=0;e<255;e+=1)r[t[e]]=e;var n={glog:function(t){if(t<1)throw"glog("+t+")";return r[t]},gexp:function(r){for(;r<0;)r+=255;for(;r>=256;)r-=255;return t[r]}};return n}();function k(t,r){if(void 0===t.length)throw t.length+"/"+r;var e=function(){for(var e=0;e<t.length&&0==t[e];)e+=1;for(var n=new Array(t.length-e+r),o=0;o<t.length-e;o+=1)n[o]=t[o+e];return n}(),n={getAt:function(t){return e[t]},getLength:function(){return e.length},multiply:function(t){for(var r=new Array(n.getLength()+t.getLength()-1),e=0;e<n.getLength();e+=1)for(var o=0;o<t.getLength();o+=1)r[e+o]^=C.gexp(C.glog(n.getAt(e))+C.glog(t.getAt(o)));return k(r,0)},mod:function(t){if(n.getLength()-t.getLength()<0)return n;for(var r=C.glog(n.getAt(0))-C.glog(t.getAt(0)),e=new Array(n.getLength()),o=0;o<n.getLength();o+=1)e[o]=n.getAt(o);for(o=0;o<t.getLength();o+=1)e[o]^=C.gexp(C.glog(t.getAt(o))+r);return k(e,0).mod(t)}};return n}var A=function(){var t=[[1,26,19],[1,26,16],[1,26,13],[1,26,9],[1,44,34],[1,44,28],[1,44,22],[1,44,16],[1,70,55],[1,70,44],[2,35,17],[2,35,13],[1,100,80],[2,50,32],[2,50,24],[4,25,9],[1,134,108],[2,67,43],[2,33,15,2,34,16],[2,33,11,2,34,12],[2,86,68],[4,43,27],[4,43,19],[4,43,15],[2,98,78],[4,49,31],[2,32,14,4,33,15],[4,39,13,1,40,14],[2,121,97],[2,60,38,2,61,39],[4,40,18,2,41,19],[4,40,14,2,41,15],[2,146,116],[3,58,36,2,59,37],[4,36,16,4,37,17],[4,36,12,4,37,13],[2,86,68,2,87,69],[4,69,43,1,70,44],[6,43,19,2,44,20],[6,43,15,2,44,16],[4,101,81],[1,80,50,4,81,51],[4,50,22,4,51,23],[3,36,12,8,37,13],[2,116,92,2,117,93],[6,58,36,2,59,37],[4,46,20,6,47,21],[7,42,14,4,43,15],[4,133,107],[8,59,37,1,60,38],[8,44,20,4,45,21],[12,33,11,4,34,12],[3,145,115,1,146,116],[4,64,40,5,65,41],[11,36,16,5,37,17],[11,36,12,5,37,13],[5,109,87,1,110,88],[5,65,41,5,66,42],[5,54,24,7,55,25],[11,36,12,7,37,13],[5,122,98,1,123,99],[7,73,45,3,74,46],[15,43,19,2,44,20],[3,45,15,13,46,16],[1,135,107,5,136,108],[10,74,46,1,75,47],[1,50,22,15,51,23],[2,42,14,17,43,15],[5,150,120,1,151,121],[9,69,43,4,70,44],[17,50,22,1,51,23],[2,42,14,19,43,15],[3,141,113,4,142,114],[3,70,44,11,71,45],[17,47,21,4,48,22],[9,39,13,16,40,14],[3,135,107,5,136,108],[3,67,41,13,68,42],[15,54,24,5,55,25],[15,43,15,10,44,16],[4,144,116,4,145,117],[17,68,42],[17,50,22,6,51,23],[19,46,16,6,47,17],[2,139,111,7,140,112],[17,74,46],[7,54,24,16,55,25],[34,37,13],[4,151,121,5,152,122],[4,75,47,14,76,48],[11,54,24,14,55,25],[16,45,15,14,46,16],[6,147,117,4,148,118],[6,73,45,14,74,46],[11,54,24,16,55,25],[30,46,16,2,47,17],[8,132,106,4,133,107],[8,75,47,13,76,48],[7,54,24,22,55,25],[22,45,15,13,46,16],[10,142,114,2,143,115],[19,74,46,4,75,47],[28,50,22,6,51,23],[33,46,16,4,47,17],[8,152,122,4,153,123],[22,73,45,3,74,46],[8,53,23,26,54,24],[12,45,15,28,46,16],[3,147,117,10,148,118],[3,73,45,23,74,46],[4,54,24,31,55,25],[11,45,15,31,46,16],[7,146,116,7,147,117],[21,73,45,7,74,46],[1,53,23,37,54,24],[19,45,15,26,46,16],[5,145,115,10,146,116],[19,75,47,10,76,48],[15,54,24,25,55,25],[23,45,15,25,46,16],[13,145,115,3,146,116],[2,74,46,29,75,47],[42,54,24,1,55,25],[23,45,15,28,46,16],[17,145,115],[10,74,46,23,75,47],[10,54,24,35,55,25],[19,45,15,35,46,16],[17,145,115,1,146,116],[14,74,46,21,75,47],[29,54,24,19,55,25],[11,45,15,46,46,16],[13,145,115,6,146,116],[14,74,46,23,75,47],[44,54,24,7,55,25],[59,46,16,1,47,17],[12,151,121,7,152,122],[12,75,47,26,76,48],[39,54,24,14,55,25],[22,45,15,41,46,16],[6,151,121,14,152,122],[6,75,47,34,76,48],[46,54,24,10,55,25],[2,45,15,64,46,16],[17,152,122,4,153,123],[29,74,46,14,75,47],[49,54,24,10,55,25],[24,45,15,46,46,16],[4,152,122,18,153,123],[13,74,46,32,75,47],[48,54,24,14,55,25],[42,45,15,32,46,16],[20,147,117,4,148,118],[40,75,47,7,76,48],[43,54,24,22,55,25],[10,45,15,67,46,16],[19,148,118,6,149,119],[18,75,47,31,76,48],[34,54,24,34,55,25],[20,45,15,61,46,16]],r=function(t,r){var e={};return e.totalCount=t,e.dataCount=r,e},e={};return e.getRSBlocks=function(e,n){var o=function(r,e){switch(e){case g.L:return t[4*(r-1)+0];case g.M:return t[4*(r-1)+1];case g.Q:return t[4*(r-1)+2];case g.H:return t[4*(r-1)+3];default:return}}(e,n);if(void 0===o)throw"bad rs block @ typeNumber:"+e+"/errorCorrectionLevel:"+n;for(var i=o.length/3,a=[],u=0;u<i;u+=1)for(var f=o[3*u+0],c=o[3*u+1],l=o[3*u+2],h=0;h<f;h+=1)a.push(r(c,l));return a},e}(),b=function(){var t=[],r=0,e={getBuffer:function(){return t},getAt:function(r){var e=Math.floor(r/8);return 1==(t[e]>>>7-r%8&1)},put:function(t,r){for(var n=0;n<r;n+=1)e.putBit(1==(t>>>r-n-1&1))},getLengthInBits:function(){return r},putBit:function(e){var n=Math.floor(r/8);t.length<=n&&t.push(0),e&&(t[n]|=128>>>r%8),r+=1}};return e},M=function(t){var r=a,e=t,n={getMode:function(){return r},getLength:function(t){return e.length},write:function(t){for(var r=e,n=0;n+2<r.length;)t.put(o(r.substring(n,n+3)),10),n+=3;n<r.length&&(r.length-n==1?t.put(o(r.substring(n,n+1)),4):r.length-n==2&&t.put(o(r.substring(n,n+2)),7))}},o=function(t){for(var r=0,e=0;e<t.length;e+=1)r=10*r+i(t.charAt(e));return r},i=function(t){if("0"<=t&&t<="9")return t.charCodeAt(0)-"0".charCodeAt(0);throw"illegal char :"+t};return n},x=function(t){var r=u,e=t,n={getMode:function(){return r},getLength:function(t){return e.length},write:function(t){for(var r=e,n=0;n+1<r.length;)t.put(45*o(r.charAt(n))+o(r.charAt(n+1)),11),n+=2;n<r.length&&t.put(o(r.charAt(n)),6)}},o=function(t){if("0"<=t&&t<="9")return t.charCodeAt(0)-"0".charCodeAt(0);if("A"<=t&&t<="Z")return t.charCodeAt(0)-"A".charCodeAt(0)+10;switch(t){case" ":return 36;case"$":return 37;case"%":return 38;case"*":return 39;case"+":return 40;case"-":return 41;case".":return 42;case"/":return 43;case":":return 44;default:throw"illegal char :"+t}};return n},m=function(r){var e=f,n=t.stringToBytes(r),o={getMode:function(){return e},getLength:function(t){return n.length},write:function(t){for(var r=0;r<n.length;r+=1)t.put(n[r],8)}};return o},L=function(r){var e=c,n=t.stringToBytesFuncs.SJIS;if(!n)throw"sjis not supported.";!function(){var t=n("友");if(2!=t.length||38726!=(t[0]<<8|t[1]))throw"sjis not supported."}();var o=n(r),i={getMode:function(){return e},getLength:function(t){return~~(o.length/2)},write:function(t){for(var r=o,e=0;e+1<r.length;){var n=(255&r[e])<<8|255&r[e+1];if(33088<=n&&n<=40956)n-=33088;else{if(!(57408<=n&&n<=60351))throw"illegal char at "+(e+1)+"/"+n;n-=49472}n=192*(n>>>8&255)+(255&n),t.put(n,13),e+=2}if(e<r.length)throw"illegal char at "+(e+1)}};return i},D=function(){var t=[],r={writeByte:function(r){t.push(255&r)},writeShort:function(t){r.writeByte(t),r.writeByte(t>>>8)},writeBytes:function(t,e,n){e=e||0,n=n||t.length;for(var o=0;o<n;o+=1)r.writeByte(t[o+e])},writeString:function(t){for(var e=0;e<t.length;e+=1)r.writeByte(t.charCodeAt(e))},toByteArray:function(){return t},toString:function(){var r="";r+="[";for(var e=0;e<t.length;e+=1)e>0&&(r+=","),r+=t[e];return r+="]"}};return r},S=function(t){var r=t,e=0,n=0,o=0,i={read:function(){for(;o<8;){if(e>=r.length){if(0==o)return-1;throw"unexpected end of file./"+o}var t=r.charAt(e);if(e+=1,"="==t)return o=0,-1;t.match(/^\s$/)||(n=n<<6|a(t.charCodeAt(0)),o+=6)}var i=n>>>o-8&255;return o-=8,i}},a=function(t){if(65<=t&&t<=90)return t-65;if(97<=t&&t<=122)return t-97+26;if(48<=t&&t<=57)return t-48+52;if(43==t)return 62;if(47==t)return 63;throw"c:"+t};return i},I=function(t,r,e){for(var n=function(t,r){var e=t,n=r,o=new Array(t*r),i={setPixel:function(t,r,n){o[r*e+t]=n},write:function(t){t.writeString("GIF87a"),t.writeShort(e),t.writeShort(n),t.writeByte(128),t.writeByte(0),t.writeByte(0),t.writeByte(0),t.writeByte(0),t.writeByte(0),t.writeByte(255),t.writeByte(255),t.writeByte(255),t.writeString(","),t.writeShort(0),t.writeShort(0),t.writeShort(e),t.writeShort(n),t.writeByte(0);var r=a(2);t.writeByte(2);for(var o=0;r.length-o>255;)t.writeByte(255),t.writeBytes(r,o,255),o+=255;t.writeByte(r.length-o),t.writeBytes(r,o,r.length-o),t.writeByte(0),t.writeString(";")}},a=function(t){for(var r=1<<t,e=1+(1<<t),n=t+1,i=u(),a=0;a<r;a+=1)i.add(String.fromCharCode(a));i.add(String.fromCharCode(r)),i.add(String.fromCharCode(e));var f,c,g,l=D(),h=(f=l,c=0,g=0,{write:function(t,r){if(t>>>r!=0)throw"length over";for(;c+r>=8;)f.writeByte(255&(t<<c|g)),r-=8-c,t>>>=8-c,g=0,c=0;g|=t<<c,c+=r},flush:function(){c>0&&f.writeByte(g)}});h.write(r,n);var s=0,v=String.fromCharCode(o[s]);for(s+=1;s<o.length;){var d=String.fromCharCode(o[s]);s+=1,i.contains(v+d)?v+=d:(h.write(i.indexOf(v),n),i.size()<4095&&(i.size()==1<<n&&(n+=1),i.add(v+d)),v=d)}return h.write(i.indexOf(v),n),h.write(e,n),h.flush(),l.toByteArray()},u=function(){var t={},r=0,e={add:function(n){if(e.contains(n))throw"dup key:"+n;t[n]=r,r+=1},size:function(){return r},indexOf:function(r){return t[r]},contains:function(r){return void 0!==t[r]}};return e};return i}(t,r),o=0;o<r;o+=1)for(var i=0;i<t;i+=1)n.setPixel(i,o,e(i,o));var a=D();n.write(a);for(var u=function(){var t=0,r=0,e=0,n="",o={},i=function(t){n+=String.fromCharCode(a(63&t))},a=function(t){if(t<0);else{if(t<26)return 65+t;if(t<52)return t-26+97;if(t<62)return t-52+48;if(62==t)return 43;if(63==t)return 47}throw"n:"+t};return o.writeByte=function(n){for(t=t<<8|255&n,r+=8,e+=1;r>=6;)i(t>>>r-6),r-=6},o.flush=function(){if(r>0&&(i(t<<6-r),t=0,r=0),e%3!=0)for(var o=3-e%3,a=0;a<o;a+=1)n+="="},o.toString=function(){return n},o}(),f=a.toByteArray(),c=0;c<f.length;c+=1)u.writeByte(f[c]);return u.flush(),"data:image/gif;base64,"+u};return t}();qrcode.stringToBytesFuncs["UTF-8"]=function(t){return function(t){for(var r=[],e=0;e<t.length;e++){var n=t.charCodeAt(e);n<128?r.push(n):n<2048?r.push(192|n>>6,128|63&n):n<55296||n>=57344?r.push(224|n>>12,128|n>>6&63,128|63&n):(e++,n=65536+((1023&n)<<10|1023&t.charCodeAt(e)),r.push(240|n>>18,128|n>>12&63,128|n>>6&63,128|63&n))}return r}(t)},function(t){"function"==typeof define&&define.amd?define([],t):"object"==typeof exports&&(module.exports=t())}(function(){return qrcode});</script>
+
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        colors: {
+          corporate: {
+            50: '#f0f9ff', 100: '#e0f2fe', 200: '#bae6fd', 300: '#7dd3fc',
+            400: '#38bdf8', 500: '#0ea5e9', 600: '#0284c7', 700: '#0369a1',
+            800: '#075985', 900: '#0c4a6e'
+          }
+        },
+        fontFamily: { sans: ['"Prompt"', 'sans-serif'] }
+      }
+    }
+  }
+</script>
+<link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  body { font-family: 'Prompt', sans-serif; }
+  ::-webkit-scrollbar { height: 12px; width: 12px; }
+  ::-webkit-scrollbar-track { background: #f1f5f9; border-radius: 8px; }
+  ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 8px; border: 3px solid #f1f5f9; }
+  ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+</style>
+</head>
+<body class="bg-corporate-50 text-gray-800 min-h-screen flex flex-col">
+
+<main class="flex-grow max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
+
+  <div class="mb-6">
+    <h1 class="text-2xl font-bold text-gray-900 tracking-tight">ระบบพิมพ์สติกเกอร์ติดถุง</h1>
+    <p class="text-sm text-gray-500 mt-1">อ่านไฟล์ Stock คงเหลือส่วนผสมประจำวัน (.xlsb / .xlsx) แล้วสร้างสติกเกอร์ตามรูปแบบเทปติดถุง — เลือกพิมพ์ 1 / 2 / 4 ชิ้นต่อแผ่นได้</p>
+  </div>
+
+  <div id="message-box" class="hidden mb-6 p-4 rounded-lg flex items-center gap-3">
+    <i id="message-icon" class="text-2xl"></i>
+    <span id="message-text" class="font-medium"></span>
+  </div>
+
+  <!-- Upload -->
+  <div class="bg-white p-6 rounded-xl shadow-sm border border-corporate-100 mb-6">
+    <div class="border-2 border-dashed border-gray-300 rounded-xl p-6 text-center hover:border-corporate-500 hover:bg-corporate-50 transition cursor-pointer relative" id="drop-zone">
+      <input type="file" id="excel-file" accept=".xlsb,.xlsx,.xlsm,.xls" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer">
+      <i class="ph ph-file-xls text-4xl text-corporate-500 mb-2"></i>
+      <h3 class="text-base font-semibold text-gray-700">ลากไฟล์ .xlsb / .xlsx / .xlsm / .xls มาวาง หรือคลิกเพื่อเลือกไฟล์</h3>
+      <p class="text-sm text-gray-500 mt-1">รองรับไฟล์ Stock คงเหลือส่วนผสมประจำวัน (มีหลายชีต)</p>
+      <p id="file-name-display" class="mt-3 text-corporate-600 font-medium hidden"></p>
+    </div>
+  </div>
+
+  <!-- Sheet select -->
+  <div id="sheet-select-panel" class="hidden bg-white p-4 rounded-xl shadow-sm border border-corporate-100 mb-6 flex flex-col sm:flex-row sm:items-center gap-3">
+    <label for="sheet-select" class="text-sm font-semibold text-gray-700 flex items-center gap-2 shrink-0">
+      <i class="ph ph-stack text-corporate-600"></i> เลือกชีต
+    </label>
+    <select id="sheet-select" class="flex-1 bg-corporate-50 border border-gray-300 rounded-lg p-2.5 text-sm"></select>
+  </div>
+
+  <div id="sheet-status" class="hidden mb-6"></div>
+
+  <!-- Groups panel -->
+  <div id="groups-panel" class="hidden bg-white rounded-2xl shadow-sm ring-1 ring-gray-200/80 overflow-hidden mb-6">
+    <div class="px-6 py-4 border-b border-gray-100 flex flex-wrap items-center justify-between gap-3">
+      <div class="flex items-center gap-3">
+        <span class="w-9 h-9 rounded-xl bg-corporate-50 text-corporate-600 flex items-center justify-center text-lg">
+          <i class="ph-fill ph-clipboard-text"></i>
+        </span>
+        <h3 class="font-semibold text-base text-gray-900">1) เลือกงาน/ล็อตที่จะพิมพ์ (รหัสย่อ)</h3>
+        <span id="group-count" class="text-xs bg-gray-100 text-gray-600 py-1 px-3 rounded-full font-medium"></span>
+      </div>
+      <div class="flex items-center gap-2">
+        <input id="group-search" type="text" placeholder="ค้นหารหัส เช่น NXH, TGG..." class="text-sm border border-gray-300 rounded-lg px-3 py-2 w-56">
+        <button id="btn-groups-select-all" class="text-xs text-gray-600 border border-gray-200 bg-white hover:bg-gray-50 px-3 py-2 rounded-lg font-medium">เลือกทั้งหมด</button>
+        <button id="btn-groups-select-none" class="text-xs text-gray-500 border border-gray-200 bg-white hover:bg-gray-50 px-3 py-2 rounded-lg font-medium">ล้างการเลือก</button>
+      </div>
+    </div>
+    <div class="overflow-x-auto max-h-80">
+      <table class="min-w-full text-sm">
+        <thead class="bg-gray-50 sticky top-0">
+          <tr class="text-left text-gray-600">
+            <th class="px-4 py-2 w-8"></th>
+            <th class="px-4 py-2">รหัสย่อ (แสดงบนสติกเกอร์)</th>
+            <th class="px-4 py-2">รหัสงาน</th>
+            <th class="px-4 py-2">รายละเอียด</th>
+            <th class="px-4 py-2 text-right">จำนวนชุด</th>
+            <th class="px-4 py-2 text-right">จำนวนส่วนผสมที่มีน้ำหนัก</th>
+          </tr>
+        </thead>
+        <tbody id="groups-tbody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Print settings (QR / date code / lot sequence / unit) -->
+  <div id="print-settings-panel" class="hidden bg-white rounded-2xl shadow-sm ring-1 ring-gray-200/80 overflow-hidden mb-6">
+    <div class="px-6 py-4 border-b border-gray-100 flex items-center gap-3">
+      <span class="w-9 h-9 rounded-xl bg-corporate-50 text-corporate-600 flex items-center justify-center text-lg">
+        <i class="ph-fill ph-qr-code"></i>
+      </span>
+      <h3 class="font-semibold text-base text-gray-900">ตั้งค่าข้อมูลบนสติกเกอร์ / QR Code</h3>
+    </div>
+    <div class="p-6 grid gap-5 md:grid-cols-2 xl:grid-cols-3">
+      <div>
+        <label for="opt-date" class="block text-sm font-semibold text-gray-700 mb-1">วันที่ (แปลงเป็นรหัสวันที่)</label>
+        <div class="flex gap-2">
+          <input id="opt-date" type="text" inputmode="numeric" placeholder="วว/ดด/ปปปป เช่น 03/09/2026" autocomplete="off" class="flex-1 min-w-0 border border-gray-300 rounded-lg px-3 py-2 text-sm">
+          <button id="btn-date-pick" type="button" title="เลือกจากปฏิทิน" class="relative border border-gray-300 bg-white hover:bg-gray-50 rounded-lg px-3 text-gray-600">
+            <i class="ph ph-calendar-blank text-lg"></i>
+            <input id="opt-date-picker" type="date" tabindex="-1" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer">
+          </button>
+        </div>
+        <p class="text-xs text-gray-500 mt-1">รหัสที่จะพิมพ์: <span id="opt-date-code" class="font-bold text-corporate-700 text-sm"></span></p>
+        <p id="opt-date-src" class="text-xs text-gray-400 mt-0.5"></p>
+      </div>
+      <div>
+        <label for="opt-date-table" class="block text-sm font-semibold text-gray-700 mb-1">ตารางตัวอักษรวันที่</label>
+        <select id="opt-date-table" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm bg-white">
+          <option value="main">วันที่ปกติ (1-9 = เลข, 10 = A ... 31 = Z)</option>
+          <option value="rm">วันที่ R/M (วันที่ 23-28 เลื่อนตัวอักษร)</option>
+        </select>
+        <p class="text-xs text-gray-500 mt-1">วันที่ 1-9 พิมพ์เป็นตัวเลข ตั้งแต่ 10 เป็นต้นไปพิมพ์เป็นตัวอักษร</p>
+      </div>
+      <div>
+        <label for="opt-seq-start" class="block text-sm font-semibold text-gray-700 mb-1">ลำดับชุดเริ่มต้น (Auto)</label>
+        <div class="flex gap-2">
+          <input id="opt-seq-start" type="number" min="0" step="1" value="1" class="w-28 border border-gray-300 rounded-lg px-3 py-2 text-sm text-right">
+          <button id="btn-seq-reset" type="button" class="text-xs text-gray-600 border border-gray-200 bg-white hover:bg-gray-50 px-3 py-2 rounded-lg font-medium whitespace-nowrap">รีเซ็ตเป็น Auto</button>
+        </div>
+        <p class="text-xs text-gray-500 mt-1">เลขวิ่งต่อเนื่องตามลำดับที่พิมพ์ — แก้เลขในตารางด้านล่างได้ทีละแถว แถวถัดไปจะวิ่งต่อจากเลขที่แก้ (ลบเลขออก = กลับเป็น Auto)</p>
+      </div>
+      <div>
+        <label for="opt-unit" class="block text-sm font-semibold text-gray-700 mb-1">หน่วยน้ำหนัก</label>
+        <select id="opt-unit" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm bg-white">
+          <option value="KG">KG (กิโลกรัม)</option>
+          <option value="G">G (กรัม)</option>
+        </select>
+        <p class="text-xs text-gray-500 mt-1">ข้อมูลในไฟล์เป็น KG — เลือก G ระบบจะแปลงค่าให้ (× 1,000)</p>
+      </div>
+      <div>
+        <label for="opt-layout" class="block text-sm font-semibold text-gray-700 mb-1">รูปแบบการพิมพ์ต่อแผ่น</label>
+        <select id="opt-layout" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm bg-white">
+          <option value="4">4 ข้อมูล/แผ่น (ชิ้นละ 4.5×3.5 cm)</option>
+          <option value="2">2 ข้อมูล/แผ่น (ชิ้นละ 9×3.5 cm)</option>
+          <option value="1">1 ข้อมูล/แผ่น (เต็มแผ่น 9×7 cm)</option>
+        </select>
+        <p class="text-xs text-gray-500 mt-1">ขนาดแผ่นยังเป็น 9×7 cm — QR และตัวอักษรขยายตามรูปแบบที่เลือก</p>
+      </div>
+      <div>
+        <label class="block text-sm font-semibold text-gray-700 mb-1">เลขลำดับเมื่อพิมพ์หลายชุด</label>
+        <label class="flex items-center gap-2 text-sm text-gray-700 mt-2">
+          <input id="opt-seq-run" type="checkbox" checked class="rounded border-gray-300 text-corporate-600 focus:ring-corporate-500">
+          เลขลำดับวิ่งต่อทุกชุด (0001, 0002, 0003…)
+        </label>
+        <p class="text-xs text-gray-500 mt-1">ปิด = ทุกชุดของรายการเดียวกันใช้เลขลำดับเดียวกัน</p>
+      </div>
+    </div>
+    <div class="px-6 pb-6">
+      <div class="flex items-center gap-4 bg-corporate-50 border border-corporate-100 rounded-xl p-4">
+        <div id="preview-qr" class="w-20 h-20 bg-white border border-gray-200 rounded-md flex items-center justify-center text-[10px] text-gray-400 shrink-0 p-1"></div>
+        <div class="min-w-0">
+          <div class="text-xs text-gray-500">ตัวอย่างข้อมูลใน QR Code / ข้อความบนสติกเกอร์ (ใบแรกที่เลือก)</div>
+          <div id="preview-text" class="font-mono font-bold text-base text-gray-900 break-all">-</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Ingredients panel -->
+  <div id="ingredients-panel" class="hidden bg-white rounded-2xl shadow-sm ring-1 ring-gray-200/80 overflow-hidden">
+    <div class="px-6 py-4 border-b border-gray-100 flex flex-wrap items-center justify-between gap-3">
+      <div class="flex items-center gap-3 flex-wrap">
+        <span class="w-9 h-9 rounded-xl bg-corporate-50 text-corporate-600 flex items-center justify-center text-lg">
+          <i class="ph-fill ph-table"></i>
+        </span>
+        <h3 class="font-semibold text-base text-gray-900">2) เลือกส่วนผสมที่จะพิมพ์สติกเกอร์</h3>
+        <span id="ingredient-count" class="text-xs bg-gray-100 text-gray-600 py-1 px-3 rounded-full font-medium"></span>
+      </div>
+      <div class="flex items-center gap-2 flex-wrap">
+        <button id="btn-ing-select-all" class="text-xs text-gray-600 border border-gray-200 bg-white hover:bg-gray-50 px-3 py-2 rounded-lg font-medium">เลือกทั้งหมด</button>
+        <button id="btn-ing-select-none" class="text-xs text-gray-500 border border-gray-200 bg-white hover:bg-gray-50 px-3 py-2 rounded-lg font-medium">ล้างการเลือก</button>
+        <button id="btn-print" class="bg-corporate-600 hover:bg-corporate-700 active:bg-corporate-800 text-white px-5 py-2.5 rounded-lg text-sm font-semibold transition flex items-center gap-2 shadow-sm">
+          <i class="ph-fill ph-printer text-lg"></i> <span id="btn-print-label">พิมพ์สติกเกอร์</span>
+        </button>
+      </div>
+    </div>
+    <div class="overflow-x-auto max-h-[32rem]">
+      <table class="min-w-full text-sm">
+        <thead class="bg-gray-50 sticky top-0">
+          <tr class="text-left text-gray-600">
+            <th class="px-4 py-2 w-8"></th>
+            <th class="px-2 py-2 w-10"></th>
+            <th class="px-2 py-2 text-right whitespace-nowrap">ลำดับชุด</th>
+            <th class="px-2 py-2 text-right whitespace-nowrap">พิมพ์กี่ชุด</th>
+            <th class="px-4 py-2">รหัสย่อ</th>
+            <th class="px-4 py-2">ชื่อย่อส่วนผสม</th>
+            <th class="px-4 py-2">ชื่อเต็ม</th>
+            <th class="px-4 py-2 text-right whitespace-nowrap">นน./ชุด <span class="unit-label"></span></th>
+            <th class="px-4 py-2 text-right">X จำนวนชุด</th>
+            <th class="px-4 py-2 text-right whitespace-nowrap">นน.ที่ใช้ (รวม) <span class="unit-label"></span></th>
+          </tr>
+        </thead>
+        <tbody id="ingredients-tbody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Raw data table (full sheet, like the original tool) -->
+  <div id="raw-panel" class="hidden bg-white rounded-2xl shadow-sm ring-1 ring-gray-200/80 overflow-hidden mt-6">
+    <div class="px-6 py-4 border-b border-gray-100 flex flex-wrap items-center justify-between gap-3">
+      <div class="flex items-center gap-3">
+        <span class="w-9 h-9 rounded-xl bg-corporate-50 text-corporate-600 flex items-center justify-center text-lg">
+          <i class="ph-fill ph-table"></i>
+        </span>
+        <h3 class="font-semibold text-base text-gray-900">ตารางแสดงข้อมูลดิบทั้งหมดในชีตนี้</h3>
+        <span id="raw-count" class="text-xs bg-gray-100 text-gray-600 py-1 px-3 rounded-full font-medium"></span>
+      </div>
+    </div>
+    <div class="overflow-auto max-h-[36rem]">
+      <table class="min-w-full text-xs border-collapse">
+        <thead id="raw-thead" class="bg-gray-50 sticky top-0 z-10"></thead>
+        <tbody id="raw-tbody"></tbody>
+      </table>
+    </div>
+  </div>
+
+</main>
+
+<script>
+(function () {
+  const dropZone = document.getElementById('drop-zone');
+  const fileInput = document.getElementById('excel-file');
+  const fileNameDisplay = document.getElementById('file-name-display');
+  const sheetSelectPanel = document.getElementById('sheet-select-panel');
+  const sheetSelect = document.getElementById('sheet-select');
+  const sheetStatus = document.getElementById('sheet-status');
+  const groupsPanel = document.getElementById('groups-panel');
+  const groupsTbody = document.getElementById('groups-tbody');
+  const groupCountEl = document.getElementById('group-count');
+  const groupSearch = document.getElementById('group-search');
+  const ingredientsPanel = document.getElementById('ingredients-panel');
+  const ingredientsTbody = document.getElementById('ingredients-tbody');
+  const ingredientCountEl = document.getElementById('ingredient-count');
+  const rawPanel = document.getElementById('raw-panel');
+  const rawThead = document.getElementById('raw-thead');
+  const rawTbody = document.getElementById('raw-tbody');
+  const rawCountEl = document.getElementById('raw-count');
+  let globalSheetData = null; // full array-of-arrays for the current sheet, for the raw table
+
+  let globalWorkbook = null;
+  let globalLayout = null;      // detected matrix layout for the current sheet
+  let globalEntries = [];       // all ingredient x group entries with nonzero weight, for current sheet
+  let selectedGroupKeys = new Set();
+  let selectedEntryIds = new Set();
+
+  // ---------- Print options state ----------
+  const printSettingsPanel = document.getElementById('print-settings-panel');
+  const optDate = document.getElementById('opt-date');
+  const optDateTable = document.getElementById('opt-date-table');
+  const optDateCode = document.getElementById('opt-date-code');
+  const optSeqStart = document.getElementById('opt-seq-start');
+  const optUnit = document.getElementById('opt-unit');
+  const previewQr = document.getElementById('preview-qr');
+  const previewText = document.getElementById('preview-text');
+  const optDateSrc = document.getElementById('opt-date-src');
+  const optLayout = document.getElementById('opt-layout');
+  const optSeqRun = document.getElementById('opt-seq-run');
+  const printLabelEl = document.getElementById('btn-print-label');
+  let currentFileName = '';        // ชื่อไฟล์ที่เลือก (ใช้เป็นแหล่งสำรองของวันที่)
+  let printLayout = 4;             // 4 | 2 | 1 ข้อมูลต่อแผ่น
+  let seqRun = true;               // พิมพ์หลายชุด: เลขลำดับวิ่งต่อทุกชุด
+  const copiesMap = new Map();     // entry id -> จำนวนชุดที่จะพิมพ์ (ค่าเริ่มต้น 1)
+  let printUnit = 'KG';            // 'KG' | 'G'
+  let seqStart = 1;                // เลขลำดับชุดเริ่มต้น (Auto)
+  const seqOverride = new Map();   // entry id -> เลขลำดับชุดที่ผู้ใช้แก้เอง (แถวถัดไปจะวิ่งต่อจากเลขนี้)
+
+  // ตารางแปลงวันที่ -> ตัวอักษร (ตามรูปที่แนบ): 1-9 เป็นเลข, 10 = A, 11 = B ... 31 = Z (ไม่มี I, O, Q, U ในชุดหลัก)
+  const DAY_CODES = { 10:'A', 11:'B', 12:'C', 13:'D', 14:'E', 15:'F', 16:'G', 17:'H', 18:'J', 19:'K',
+                      20:'L', 21:'M', 22:'N', 23:'O', 24:'P', 25:'R', 26:'S', 27:'T', 28:'V', 29:'W', 30:'X', 31:'Z' };
+  // วันที่ R/M: ตั้งแต่วันที่ 23-28 ตัวอักษรเลื่อนไป (O->P, P->R, R->S, S->T, T->U, V->V)
+  const RM_DAY_CODES = { 23:'P', 24:'R', 25:'S', 26:'T', 27:'U', 28:'V' };
+
+  function dayToCode(day, useRM) {
+    if (useRM && RM_DAY_CODES[day]) return RM_DAY_CODES[day];
+    return day <= 9 ? String(day) : (DAY_CODES[day] || String(day));
+  }
+
+  function todayInputValue() {
+    const d = new Date();
+    const p = (n) => String(n).padStart(2, '0');
+    return d.getFullYear() + '-' + p(d.getMonth() + 1) + '-' + p(d.getDate());
+  }
+
+  // ช่องวันที่เป็นข้อความรูปแบบ วว/ดด/ปปปป (ไม่ใช้ type=date เพราะเบราว์เซอร์แสดงตามภาษาเครื่อง เช่น เดือน/วัน/ปี)
+  function isoToDisplay(iso) { return iso.slice(8, 10) + '/' + iso.slice(5, 7) + '/' + iso.slice(0, 4); }
+  function setDateISO(iso) { optDate.value = isoToDisplay(iso); optDate.classList.remove('border-red-400', 'bg-red-50'); }
+  function getDateISO() { return parseDateText(optDate.value); }
+
+  // รหัสวันที่ปัจจุบันตามช่องวันที่ + ตารางที่เลือก
+  function currentDayCode() {
+    const v = getDateISO() || todayInputValue();
+    const day = parseInt(v.slice(8, 10), 10);
+    return dayToCode(day, optDateTable.value === 'rm');
+  }
+
+  // ---------- ดึงวันที่จากไฟล์ ----------
+  function toInputDate(y, m, d) {
+    if (y > 2400) y -= 543;            // ปี พ.ศ. -> ค.ศ.
+    if (y < 100) y += 2000;
+    if (!(m >= 1 && m <= 12 && d >= 1 && d <= 31 && y >= 2000 && y <= 2100)) return null;
+    const p = (n) => String(n).padStart(2, '0');
+    return y + '-' + p(m) + '-' + p(d);
+  }
+  // อ่านวันที่แบบ วัน-เดือน-ปี จากข้อความ เช่น 03-09-2026, 3/9/2026
+  function parseDateText(str) {
+    const t = String(str == null ? '' : str);
+    // ลองทีละรูปแบบ (เข้มงวดก่อน) และสแกนทุกตำแหน่ง — กันกรณีเลขอื่นในชื่อไฟล์ เช่น "PF1 15-10-2026" ไม่ให้อ่านเป็น 1/15/10
+    const patterns = [
+      /(?<!\d)(\d{1,2})([-_.\/])(\d{1,2})\2(\d{4}|\d{2})(?!\d)/y,   // 03-09-2026  03/09/2026  3.9.26 (ตัวคั่นเหมือนกัน)
+      /(?<!\d)(\d{1,2})[-_.\/\s]+(\d{1,2})[-_.\/\s]+(\d{4}|\d{2})(?!\d)/y, // 03 09 2026 หรือตัวคั่นผสม
+      /(?<!\d)(\d{2})(\d{2})(\d{4})(?!\d)/y                              // 03092026
+    ];
+    for (let pi = 0; pi < patterns.length; pi++) {
+      const re = patterns[pi];
+      for (let i = 0; i < t.length; i++) {
+        re.lastIndex = i;
+        const m = re.exec(t);
+        if (!m) continue;
+        const g = pi === 0 ? [m[1], m[3], m[4]] : [m[1], m[2], m[3]];
+        const iso = toInputDate(+g[2], +g[1], +g[0]);
+        if (iso) return iso;
+      }
+    }
+    return null;
+  }
+  // หาช่องวันที่ในชีต: เซลล์ "วันที่" แล้วดูเซลล์ถัดไปทางขวา (ตัวเลข serial ของ Excel หรือข้อความวันที่)
+  function findSheetDate(data) {
+    for (let r = 0; r < Math.min(data.length, 6); r++) {
+      const row = data[r] || [];
+      for (let c = 0; c < row.length; c++) {
+        const v = row[c];
+        if (typeof v !== 'string' || !v.replace(/\s/g, '').startsWith('วันที่')) continue;
+        const inline = parseDateText(v);
+        if (inline) return inline;
+        for (let k = c + 1; k <= c + 4 && k < row.length; k++) {
+          const x = row[k];
+          if (x == null || x === '') continue;
+          if (typeof x === 'number' && x > 30000 && x < 80000) {
+            const dc = XLSX.SSF.parse_date_code(x);
+            const t = dc ? toInputDate(dc.y, dc.m, dc.d) : null;
+            if (t) return t;
+          } else if (typeof x === 'string') {
+            const t = parseDateText(x);
+            if (t) return t;
+          }
+        }
+      }
+    }
+    return null;
+  }
+  function applyDateFromFile(data) {
+    let d = findSheetDate(data), src = 'ดึงจากช่องวันที่ในชีต';
+    if (!d) { d = parseDateText(currentFileName); src = 'ดึงจากชื่อไฟล์ (ช่องวันที่ในชีตว่าง)'; }
+    if (d) setDateISO(d);
+    optDateSrc.textContent = d ? src : 'ไม่พบวันที่ในไฟล์ — ใช้วันที่ที่ตั้งไว้';
+  }
+
+  function showMessage(type, text) {
+    const box = document.getElementById('message-box');
+    const icon = document.getElementById('message-icon');
+    const txt = document.getElementById('message-text');
+    const styles = {
+      error: ['bg-red-50 text-red-700 border border-red-100', 'ph-fill ph-x-circle'],
+      warning: ['bg-amber-50 text-amber-700 border border-amber-100', 'ph-fill ph-warning'],
+      success: ['bg-emerald-50 text-emerald-700 border border-emerald-100', 'ph-fill ph-check-circle'],
+      info: ['bg-corporate-50 text-corporate-700 border border-corporate-100', 'ph-fill ph-info']
+    };
+    const [cls, iconCls] = styles[type] || styles.info;
+    box.className = 'mb-6 p-4 rounded-lg flex items-center gap-3 ' + cls;
+    icon.className = iconCls + ' text-2xl';
+    txt.textContent = text;
+  }
+
+  function escapeHtml(str) {
+    return String(str == null ? '' : str)
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+  }
+
+  function toNumber(v) {
+    if (typeof v === 'number') return v;
+    if (v == null || v === '') return NaN;
+    const n = parseFloat(String(v).replace(/,/g, ''));
+    return isNaN(n) ? NaN : n;
+  }
+
+  function fmt3(n) {
+    const v = toNumber(n);
+    return isNaN(v) ? '-' : v.toFixed(3);
+  }
+
+  function fmtCount(n) {
+    const v = toNumber(n);
+    if (isNaN(v)) return '-';
+    return Number.isInteger(v) ? String(v) : v.toFixed(2);
+  }
+
+  // ตัดเลข 0 ท้ายทศนิยมทิ้ง แต่คงทศนิยมขั้นต่ำ minDec ตำแหน่ง (เช่น 0.003, 12.632, 0.0014)
+  function trimNum(v, maxDec, minDec) {
+    let s = v.toFixed(maxDec);
+    if (s.indexOf('.') >= 0) {
+      let parts = s.split('.');
+      let dec = parts[1].replace(/0+$/, '');
+      while (dec.length < minDec) dec += '0';
+      s = dec.length ? parts[0] + '.' + dec : parts[0];
+    }
+    return s;
+  }
+
+  // แปลงน้ำหนัก (ในไฟล์เป็น KG) เป็นหน่วยที่ผู้ใช้เลือก: KG = ทศนิยมอย่างน้อย 3 ตำแหน่ง (ไม่ปัดทิ้งค่าเล็กๆ เช่น 0.0014), G = × 1,000
+  function fmtW(kg) {
+    const v = toNumber(kg);
+    if (isNaN(v)) return '-';
+    return printUnit === 'G' ? trimNum(v * 1e3, 3, 0) : trimNum(v, 4, 3);
+  }
+
+  // ---------- File loading ----------
+  ['dragover', 'dragleave', 'drop'].forEach(evt => {
+    dropZone.addEventListener(evt, (e) => e.preventDefault());
+  });
+  dropZone.addEventListener('drop', (e) => {
+    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+      fileInput.files = e.dataTransfer.files;
+      handleFileSelect({ target: fileInput });
+    }
+  });
+  fileInput.addEventListener('change', handleFileSelect);
+
+  function handleFileSelect(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+    currentFileName = file.name;
+    if (!/\.(xlsb|xlsx|xlsm|xls)$/i.test(file.name)) {
+      showMessage('error', 'รองรับเฉพาะไฟล์ .xlsb / .xlsx / .xlsm / .xls');
+      return;
+    }
+    fileNameDisplay.textContent = 'ไฟล์: ' + file.name;
+    fileNameDisplay.classList.remove('hidden');
+
+    const reader = new FileReader();
+    reader.onload = function (e) {
+      try {
+        const data = new Uint8Array(e.target.result);
+        globalWorkbook = XLSX.read(data, { type: 'array', cellDates: false, raw: true });
+        populateSheetSelect();
+      } catch (err) {
+        console.error(err);
+        showMessage('error', 'ไม่สามารถอ่านไฟล์นี้ได้: ' + (err && err.message ? err.message : String(err)));
+      }
+    };
+    reader.onerror = function () {
+      showMessage('error', 'เกิดข้อผิดพลาดขณะอ่านไฟล์');
+    };
+    reader.readAsArrayBuffer(file);
+    try { fileInput.value = ''; } catch (err) {}   // เลือกไฟล์เดิมซ้ำ (หลังแก้ไฟล์) แล้วยังโหลดใหม่ได้
+  }
+
+  function populateSheetSelect() {
+    sheetSelect.innerHTML = '';
+    const names = globalWorkbook.SheetNames;
+    // 1) ชีตสรุปน้ำหนักตามสูตร (DS/NS) — ไม่สนช่องว่าง/วงเล็บที่ต่างกันเล็กน้อย
+    let namesToShow = names.filter(n => n.replace(/\s+/g, '').includes('รวมน้ำหนักตามสูตร'));
+    // 2) ถ้าไฟล์ของคนอื่นตั้งชื่อชีตไม่เหมือนกัน — สแกนทุกชีตหาตารางที่มีหัว "นน./ชุด | นน.ที่ใช้"
+    if (namesToShow.length === 0) {
+      namesToShow = names.filter(n => {
+        try {
+          const d = XLSX.utils.sheet_to_json(globalWorkbook.Sheets[n], { header: 1, defval: null, raw: true });
+          return !!detectMatrixLayout(d);
+        } catch (err) { return false; }
+      });
+    }
+    // 3) ไม่เจอเลย — แสดงทุกชีตให้เลือกเอง (จะมีข้อความแจ้งว่ารูปแบบไม่รองรับ)
+    if (namesToShow.length === 0) namesToShow = names;
+    namesToShow.forEach(name => {
+      const opt = document.createElement('option');
+      opt.value = name;
+      opt.textContent = name;
+      sheetSelect.appendChild(opt);
+    });
+    sheetSelectPanel.classList.remove('hidden');
+    const dsSheet = namesToShow.find(n => /\bDS\b/i.test(n)) || namesToShow[0];
+    sheetSelect.value = dsSheet;
+    loadSheet(sheetSelect.value);
+  }
+
+  sheetSelect.addEventListener('change', () => loadSheet(sheetSelect.value));
+
+  // ---------- Matrix layout detection ----------
+  const cellKey = (v) => String(v == null ? '' : v).replace(/[\s\u00a0]+/g, '');
+  const L_PER_SET = 'นน./ชุด', L_USED = 'นน.ที่ใช้', L_COUNT = 'จำนวนชุด';
+
+  function detectMatrixLayout(data) {
+    const scanLimit = Math.min(data.length, 25);
+    let unitRow = -1;
+    for (let r = 0; r < scanLimit; r++) {
+      const row = data[r] || [];
+      let hits = 0;
+      for (let c = 0; c < row.length - 1; c++) {
+        if (cellKey(row[c]) === L_PER_SET && cellKey(row[c + 1]) === L_USED) hits++;
+      }
+      if (hits >= 2) { unitRow = r; break; }
+    }
+    if (unitRow === -1) return null;
+
+    let cntRow = -1;
+    for (let r = unitRow - 1; r >= Math.max(0, unitRow - 4); r--) {
+      const row = data[r] || [];
+      const hits = row.filter(v => cellKey(v) === L_COUNT).length;
+      if (hits >= 2) { cntRow = r; break; }
+    }
+
+    const searchStart = (cntRow !== -1 ? cntRow : unitRow) - 1;
+    let shortCodeRow = -1;
+    for (let r = searchStart; r >= Math.max(0, searchStart - 4); r--) {
+      const row = data[r] || [];
+      const hits = row.filter(v => typeof v === 'string' && v.includes('/')).length;
+      if (hits >= 2) { shortCodeRow = r; break; }
+    }
+    // Fall back to the structural offset (3 rows above the unit row) when no job codes are
+    // currently filled in for this sheet/date — the sheet is still a valid matrix layout,
+    // it just has zero active jobs right now.
+    if (shortCodeRow === -1) shortCodeRow = Math.max(0, unitRow - 3);
+
+    const descRow = shortCodeRow - 1;
+    const jobCodeRow = descRow - 1;
+
+    const metaRow = descRow >= 0 ? (data[descRow] || []) : [];
+    const findCol = (labelSubstr) => {
+      for (let c = 0; c < metaRow.length; c++) {
+        if (typeof metaRow[c] === 'string' && metaRow[c].includes(labelSubstr)) return c;
+      }
+      return -1;
+    };
+    const colName = findCol('ชื่อส่วนผสม') !== -1 ? findCol('ชื่อส่วนผสม') : 0;
+    let colShortName = -1;
+    for (let c = 0; c < metaRow.length; c++) {
+      if (typeof metaRow[c] === 'string' && metaRow[c].includes('ชื่อย่อ')) { colShortName = c; break; }
+    }
+    const colCode = findCol('รหัสส่วนผสม');
+    const colBatch = findCol('BATCH');
+    const colExp = findCol('วันหมดอายุ');
+
+    const unitRowArr = data[unitRow] || [];
+    const cntRowArr = cntRow !== -1 ? (data[cntRow] || []) : [];
+    const shortRowArr = data[shortCodeRow] || [];
+    const jobRowArr = jobCodeRow >= 0 ? (data[jobCodeRow] || []) : [];
+    const descRowArr = descRow >= 0 ? (data[descRow] || []) : [];
+
+    const groups = [];
+    for (let c = 0; c < unitRowArr.length - 1; c++) {
+      if (cellKey(unitRowArr[c]) === L_PER_SET && cellKey(unitRowArr[c + 1]) === L_USED) {
+        const shortCodeRaw = shortRowArr[c];
+        if (!shortCodeRaw || typeof shortCodeRaw !== 'string' || !shortCodeRaw.includes('/')) continue;
+        const shortCode = shortCodeRaw.trim();
+        const jobCodeRaw = jobRowArr[c];
+        const jobCode = (typeof jobCodeRaw === 'string') ? jobCodeRaw.trim() : (jobCodeRaw == null ? '' : String(jobCodeRaw));
+        const descRaw = descRowArr[c];
+        const description = (typeof descRaw === 'string') ? descRaw.trim() : (descRaw == null ? '' : String(descRaw));
+        const countVal = toNumber(cntRowArr[c + 1]);
+        groups.push({
+          key: shortCode + '#' + c,
+          colWeightPerSet: c,
+          colWeightUsed: c + 1,
+          shortCode: shortCode,
+          prefix: shortCode.split('/')[0].trim(),
+          jobCode: jobCode,
+          description: description,
+          count: isNaN(countVal) ? 0 : countVal,
+          origCount: isNaN(countVal) ? 0 : countVal
+        });
+      }
+    }
+
+    return {
+      unitRow, cntRow, shortCodeRow, descRow, jobCodeRow,
+      colName, colShortName, colCode, colBatch, colExp,
+      dataStartRow: unitRow + 1,
+      groups
+    };
+  }
+
+  function buildEntries(data, layout) {
+    const entries = [];
+    let idCounter = 0;
+    for (let r = layout.dataStartRow; r < data.length; r++) {
+      const row = data[r] || [];
+      const name = layout.colName !== -1 ? row[layout.colName] : null;
+      if (name == null || String(name).trim() === '') continue;
+      const shortNameRaw = layout.colShortName !== -1 ? row[layout.colShortName] : null;
+      const shortName = (shortNameRaw == null || String(shortNameRaw).trim() === '') ? String(name).trim() : String(shortNameRaw).trim();
+      const code = layout.colCode !== -1 ? row[layout.colCode] : '';
+
+      layout.groups.forEach(g => {
+        const wPerSet = toNumber(row[g.colWeightPerSet]);
+        if (isNaN(wPerSet) || wPerSet === 0) return;
+        const wUsed = toNumber(row[g.colWeightUsed]);
+        entries.push({
+          id: 'e' + (idCounter++),
+          ingredientName: String(name).trim(),
+          shortName: shortName,
+          code: code,
+          group: g,
+          weightPerSet: wPerSet,
+          count: g.count,
+          weightUsed: isNaN(wUsed) ? (wPerSet * g.count) : wUsed
+        });
+        const ne = entries[entries.length - 1];
+        ne.origPerSet = ne.weightPerSet;
+        ne.origUsed = ne.weightUsed;
+        // ตัวตั้งที่ใช้หารเมื่อแก้จำนวนชุด = นน.ที่ใช้ (รวม) จากไฟล์
+        ne.baseTotal = ne.origUsed > 0 ? ne.origUsed : wPerSet * g.count; // นน.ที่ใช้ (รวม) เป็นตัวตั้งสำหรับหาร
+      });
+    }
+    return entries;
+  }
+
+  // แก้จำนวนชุด: หาร นน.ที่ใช้ (รวม) เดิมในไฟล์ ด้วยจำนวนชุดที่แก้
+  function applyCount(e, v) {
+    e.count = v;
+    if (v === e.group.origCount) { e.weightPerSet = e.origPerSet; e.weightUsed = e.origUsed; return; }
+    if (v > 0) {
+      // ดึง นน.ที่ใช้ (รวม) จากไฟล์ แล้วหารด้วยจำนวนชุดที่แก้
+      // เก็บค่าเต็ม (ตัดแค่ floating noise) ทศนิยมที่แสดง/พิมพ์ปัดไม่เกิน 4 ตำแหน่งใน fmtW
+      // นน.ที่ใช้ (รวม) คงค่าเดิมจากไฟล์เสมอ (เช่น 138.428)
+      e.weightUsed = e.origUsed;
+      // เพิ่มจำนวนชุด (มากกว่าค่าเดิมในไฟล์): นน./ชุด เดิม ÷ จำนวนชุดที่แก้ (เช่น 69.214 ÷ 3 = 23.0713, ÷ 4 = 17.3035)
+      // ลดจำนวนชุด (น้อยกว่าค่าเดิมในไฟล์): นน.ที่ใช้ (รวม) ÷ จำนวนชุดที่แก้ (เช่น 138.428 ÷ 1 = 138.428, 13 ÷ 9 = 1.4444)
+      const base = v > e.group.origCount ? e.origPerSet : e.baseTotal;
+      e.weightPerSet = Number((base / v).toPrecision(12));
+    } else {
+      e.weightPerSet = e.origPerSet;
+      e.weightUsed = 0;
+    }
+  }
+
+  // แบ่งสติกเกอร์เป็น /1 /2 ... ตามจำนวนชุดที่แก้ (ถ้าไม่ได้แก้จำนวนชุด = 1 ดวง ไม่มี /ลำดับ)
+  // ทุกดวงน้ำหนักเท่ากัน = รวม ÷ จำนวนชุด (เก็บค่าเต็ม ปัดตอนแสดงผลตามหน่วย)
+  function splitParts(e) {
+    const n = Math.round(e.count);
+    if (e.count === e.group.origCount || !(n >= 1)) return [{ k: 0, w: e.weightPerSet }];
+    const parts = [];
+    for (let k = 1; k <= n; k++) parts.push({ k: k, w: e.weightPerSet });
+    return parts;
+  }
+
+  function loadSheet(sheetName) {
+    groupsPanel.classList.add('hidden');
+    ingredientsPanel.classList.add('hidden');
+    printSettingsPanel.classList.add('hidden');
+    rawPanel.classList.add('hidden');
+    sheetStatus.classList.add('hidden');
+    selectedGroupKeys = new Set();
+    selectedEntryIds = new Set();
+    removedIds.clear();
+    seqOverride.clear();
+    copiesMap.clear();
+
+    const worksheet = globalWorkbook.Sheets[sheetName];
+    const data = XLSX.utils.sheet_to_json(worksheet, { header: 1, defval: null, raw: true });
+    globalSheetData = data;
+    applyDateFromFile(data);
+
+    const layout = detectMatrixLayout(data);
+    if (!layout) {
+      sheetStatus.classList.remove('hidden');
+      sheetStatus.innerHTML = '<div class="p-4 rounded-lg bg-amber-50 text-amber-700 border border-amber-100 text-sm">' +
+        '<i class="ph-fill ph-warning mr-1"></i> ชีตนี้ไม่ใช่รูปแบบตารางส่วนผสม/นน.ชุด ที่ระบบรองรับ กรุณาเลือกชีตอื่น</div>';
+      globalLayout = null;
+      globalEntries = [];
+      /* [RAW TABLE DISABLED] renderRawTable(data, null); */
+      /* [RAW TABLE DISABLED] rawPanel.classList.remove('hidden'); */
+      return;
+    }
+
+    globalLayout = layout;
+    globalEntries = buildEntries(data, layout);
+
+    sheetStatus.classList.remove('hidden');
+    if (layout.groups.length === 0) {
+      sheetStatus.innerHTML = '<div class="p-4 rounded-lg bg-amber-50 text-amber-700 border border-amber-100 text-sm">' +
+        '<i class="ph-fill ph-warning mr-1"></i> พบรูปแบบตารางที่รองรับ แต่ยังไม่มีรหัสงาน (เช่น NXH/100) ถูกกรอกไว้ในชีตนี้ ณ ตอนนี้ — ลองเลือกชีตอื่นหรือตรวจสอบวันที่ในไฟล์</div>';
+      groupsPanel.classList.add('hidden');
+      ingredientsPanel.classList.add('hidden');
+      /* [RAW TABLE DISABLED] renderRawTable(data, layout); */
+      /* [RAW TABLE DISABLED] rawPanel.classList.remove('hidden'); */
+      return;
+    }
+
+    sheetStatus.innerHTML = '<div class="p-4 rounded-lg bg-emerald-50 text-emerald-700 border border-emerald-100 text-sm">' +
+      '<i class="ph-fill ph-check-circle mr-1"></i> พบ ' + layout.groups.length + ' งาน/รหัสย่อ และ ' + globalEntries.length + ' รายการส่วนผสมที่มีน้ำหนัก</div>';
+
+    renderGroups();
+    groupsPanel.classList.remove('hidden');
+    printSettingsPanel.classList.remove('hidden');
+    renderIngredients();
+    ingredientsPanel.classList.remove('hidden');
+    /* [RAW TABLE DISABLED] renderRawTable(data, layout); */
+    /* [RAW TABLE DISABLED] rawPanel.classList.remove('hidden'); */
+  }
+
+  // ---------- Raw full-sheet table (shows every row/column, like the original tool) ----------
+  function renderRawTable(data, layout) {
+    if (!data || data.length === 0) {
+      rawThead.innerHTML = '';
+      rawTbody.innerHTML = '';
+      rawCountEl.textContent = '';
+      return;
+    }
+    const headerRowsCount = layout ? layout.dataStartRow : 1;
+
+    // หาคอลัมน์สุดท้ายที่มีข้อมูลจริง (ตัดคอลัมน์ว่างท้ายตารางทิ้ง เพื่อไม่ให้ตารางกว้างเกินไปโดยไม่มีประโยชน์)
+    let maxCol = -1;
+    for (let r = 0; r < data.length; r++) {
+      const row = data[r] || [];
+      for (let c = row.length - 1; c >= 0; c--) {
+        if (row[c] !== null && row[c] !== undefined && String(row[c]).trim() !== '') {
+          if (c > maxCol) maxCol = c;
+          break;
+        }
+      }
+    }
+    if (maxCol < 0) maxCol = 0;
+
+    // หาแถวสุดท้ายที่มีข้อมูลจริง
+    let maxRow = data.length - 1;
+    while (maxRow > headerRowsCount && (data[maxRow] || []).every(v => v === null || v === undefined || String(v).trim() === '')) {
+      maxRow--;
+    }
+
+    const buildColLabel = (colIdx) => {
+      const parts = [];
+      for (let r = 0; r < headerRowsCount; r++) {
+        const v = (data[r] || [])[colIdx];
+        if (v !== null && v !== undefined && String(v).trim() !== '') parts.push(String(v).trim());
+      }
+      return parts.length ? parts.join('<br>') : ('คอลัมน์ ' + (colIdx + 1));
+    };
+
+    let theadHtml = '<tr>';
+    for (let c = 0; c <= maxCol; c++) {
+      theadHtml += '<th class="px-2 py-2 border-b border-gray-200 text-left font-semibold text-gray-600 whitespace-nowrap bg-gray-50">' + buildColLabel(c) + '</th>';
+    }
+    theadHtml += '</tr>';
+    rawThead.innerHTML = theadHtml;
+
+    let bodyHtml = '';
+    for (let r = headerRowsCount; r <= maxRow; r++) {
+      const row = data[r] || [];
+      bodyHtml += '<tr class="' + (((r - headerRowsCount) % 2 === 1) ? 'bg-gray-50/60' : 'bg-white') + ' hover:bg-corporate-50/60">';
+      for (let c = 0; c <= maxCol; c++) {
+        let v = row[c];
+        let text;
+        if (v === null || v === undefined || v === '') {
+          text = '<span class="text-gray-300">-</span>';
+        } else if (typeof v === 'number') {
+          text = Number.isInteger(v) ? String(v) : v.toFixed(3);
+        } else {
+          text = escapeHtml(v);
+        }
+        bodyHtml += '<td class="px-2 py-1.5 border-b border-gray-50 whitespace-nowrap text-gray-700">' + text + '</td>';
+      }
+      bodyHtml += '</tr>';
+    }
+    rawTbody.innerHTML = bodyHtml;
+    rawCountEl.textContent = (maxRow - headerRowsCount + 1) + ' แถว x ' + (maxCol + 1) + ' คอลัมน์';
+  }
+
+  // ---------- Groups table ----------
+  function renderGroups() {
+    const filterText = groupSearch.value.trim().toLowerCase();
+    const countByGroup = {};
+    globalEntries.forEach(e => {
+      countByGroup[e.group.key] = (countByGroup[e.group.key] || 0) + 1;
+    });
+
+    const filtered = globalLayout.groups.filter(g => {
+      if (!filterText) return true;
+      return (g.shortCode + ' ' + g.jobCode + ' ' + g.description).toLowerCase().includes(filterText);
+    });
+
+    groupCountEl.textContent = filtered.length + ' / ' + globalLayout.groups.length + ' งาน';
+
+    groupsTbody.innerHTML = filtered.map(g => {
+      const checked = selectedGroupKeys.has(g.key) ? 'checked' : '';
+      const ingCount = countByGroup[g.key] || 0;
+      return `<tr class="border-t border-gray-100 hover:bg-gray-50">
+        <td class="px-4 py-2"><input type="checkbox" class="group-checkbox rounded border-gray-300 text-corporate-600 focus:ring-corporate-500" data-key="${escapeHtml(g.key)}" ${checked}></td>
+        <td class="px-4 py-2 font-semibold text-corporate-700">${escapeHtml(g.shortCode)}</td>
+        <td class="px-4 py-2 text-gray-600">${escapeHtml(g.jobCode)}</td>
+        <td class="px-4 py-2 text-gray-500">${escapeHtml(g.description)}</td>
+        <td class="px-4 py-2 text-right"><input type="number" min="0" step="any" class="group-count-input w-20 text-right border rounded-md px-2 py-1 text-sm ${g.count !== g.origCount ? 'border-amber-400 bg-amber-50' : 'border-gray-300'}" data-key="${escapeHtml(g.key)}" value="${g.count}" title="แก้จำนวนชุดของงานนี้ (น้ำหนักรวมจะคำนวณใหม่)"></td>
+        <td class="px-4 py-2 text-right">${ingCount}</td>
+      </tr>`;
+    }).join('');
+
+    groupsTbody.querySelectorAll('.group-count-input').forEach(inp => {
+      inp.addEventListener('change', () => {
+        const g = globalLayout.groups.find(x => x.key === inp.getAttribute('data-key'));
+        if (!g) return;
+        const v = toNumber(inp.value);
+        if (isNaN(v) || v < 0) { inp.value = g.count; return; }
+        g.count = v;
+        globalEntries.forEach(e => {
+          if (e.group === g) applyCount(e, v);
+        });
+        inp.classList.toggle('border-amber-400', v !== g.origCount);
+        inp.classList.toggle('bg-amber-50', v !== g.origCount);
+        inp.classList.toggle('border-gray-300', v === g.origCount);
+        renderIngredients();
+      });
+    });
+
+    groupsTbody.querySelectorAll('.group-checkbox').forEach(cb => {
+      cb.addEventListener('change', () => {
+        const key = cb.getAttribute('data-key');
+        if (cb.checked) selectedGroupKeys.add(key); else selectedGroupKeys.delete(key);
+        renderIngredients();
+      });
+    });
+  }
+
+  groupSearch.addEventListener('input', renderGroups);
+
+  document.getElementById('btn-groups-select-all').addEventListener('click', () => {
+    globalLayout.groups.forEach(g => selectedGroupKeys.add(g.key));
+    renderGroups();
+    renderIngredients();
+  });
+  document.getElementById('btn-groups-select-none').addEventListener('click', () => {
+    selectedGroupKeys.clear();
+    renderGroups();
+    renderIngredients();
+  });
+
+  // ---------- Ingredients table ----------
+  const removedIds = new Set(); // ids the user explicitly unchecked, so they stay unchecked on re-render
+
+  function renderIngredients() {
+    const visibleEntries = globalEntries.filter(e => selectedGroupKeys.has(e.group.key));
+    // drop selections for entries no longer visible (their group got unchecked)
+    selectedEntryIds = new Set([...selectedEntryIds].filter(id => visibleEntries.some(e => e.id === id)));
+    // default newly-visible entries to selected, unless the user had explicitly unchecked them before
+    visibleEntries.forEach(e => {
+      if (!selectedEntryIds.has(e.id) && !removedIds.has(e.id)) selectedEntryIds.add(e.id);
+    });
+
+    ingredientCountEl.textContent = visibleEntries.length + ' รายการ';
+
+    ingredientsTbody.innerHTML = visibleEntries.map(e => {
+      const checked = selectedEntryIds.has(e.id) ? 'checked' : '';
+      return `<tr class="border-t border-gray-100 hover:bg-gray-50">
+        <td class="px-4 py-2"><input type="checkbox" class="ing-checkbox rounded border-gray-300 text-corporate-600 focus:ring-corporate-500" data-id="${escapeHtml(e.id)}" ${checked}></td>
+        <td class="px-2 py-2">
+          <button type="button" class="ing-print-row bg-white border border-gray-200 hover:bg-corporate-600 hover:border-corporate-600 text-corporate-600 hover:text-white w-8 h-8 rounded-lg transition flex items-center justify-center" data-id="${escapeHtml(e.id)}" title="พิมพ์สติกเกอร์เฉพาะรายการนี้">
+            <i class="ph-fill ph-printer text-base"></i>
+          </button>
+        </td>
+        <td class="px-2 py-2 text-right whitespace-nowrap">
+          <input type="number" min="0" step="1" class="seq-input w-20 text-right border rounded-md px-2 py-1 text-sm border-gray-300 disabled:bg-gray-100 disabled:text-gray-400" data-id="${escapeHtml(e.id)}" title="ลำดับชุด (Auto) — แก้เลขได้ แถวถัดไปจะวิ่งต่อจากเลขนี้ / ลบเลขออก = กลับเป็น Auto">
+          <button type="button" class="seq-start-btn text-gray-400 hover:text-corporate-600 disabled:opacity-30 disabled:hover:text-gray-400 align-middle ml-1" data-id="${escapeHtml(e.id)}" title="ตั้งแถวนี้เป็นลำดับที่เริ่มต้น (ใช้เลขเริ่มต้น แล้วแถวถัดไปวิ่งต่อ)">
+            <i class="ph-fill ph-flag text-base"></i>
+          </button>
+        </td>
+        <td class="px-2 py-2 text-right whitespace-nowrap">
+          <input type="number" min="1" max="999" step="1" class="copies-input w-16 text-right border rounded-md px-2 py-1 text-sm ${getCopies(e) > 1 ? 'border-amber-400 bg-amber-50' : 'border-gray-300'}" data-id="${escapeHtml(e.id)}" value="${getCopies(e)}" title="จำนวนสติกเกอร์ (ชุด) ที่จะพิมพ์ของรายการนี้">
+        </td>
+        <td class="px-4 py-2 font-semibold text-corporate-700">${escapeHtml(e.group.shortCode)}</td>
+        <td class="px-4 py-2">${escapeHtml(e.shortName)}</td>
+        <td class="px-4 py-2 text-gray-500">${escapeHtml(e.ingredientName)}</td>
+        <td class="px-4 py-2 text-right per-cell" data-id="${escapeHtml(e.id)}">${fmtW(e.weightPerSet)}</td>
+        <td class="px-4 py-2 text-right whitespace-nowrap">X <input type="number" min="0" step="any" class="ing-count-input w-20 text-right border rounded-md px-2 py-1 text-sm ${e.count !== e.group.origCount ? 'border-amber-400 bg-amber-50' : 'border-gray-300'}" data-id="${escapeHtml(e.id)}" value="${e.count}"></td>
+        <td class="px-4 py-2 text-right used-cell" data-id="${escapeHtml(e.id)}">${fmtW(e.weightUsed)}</td>
+      </tr>`;
+    }).join('');
+
+    ingredientsTbody.querySelectorAll('.ing-checkbox').forEach(cb => {
+      cb.addEventListener('change', () => {
+        const id = cb.getAttribute('data-id');
+        if (cb.checked) { selectedEntryIds.add(id); removedIds.delete(id); }
+        else { selectedEntryIds.delete(id); removedIds.add(id); }
+        refreshSeqCells();
+      });
+    });
+
+    ingredientsTbody.querySelectorAll('.seq-input').forEach(inp => {
+      inp.addEventListener('change', () => {
+        const id = inp.getAttribute('data-id');
+        const raw = inp.value.trim();
+        if (raw === '') {
+          seqOverride.delete(id);                 // ลบเลขออก = กลับเป็น Auto
+        } else {
+          const n = parseInt(raw, 10);
+          if (isNaN(n) || n < 0) { refreshSeqCells(); return; }
+          seqOverride.set(id, n);
+        }
+        refreshSeqCells();
+      });
+    });
+
+    ingredientsTbody.querySelectorAll('.seq-start-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const id = btn.getAttribute('data-id');
+        if (!selectedEntryIds.has(id)) return;
+        seqOverride.set(id, seqStart);            // แถวนี้เป็นลำดับเริ่มต้น แถวถัดไปวิ่งต่อ
+        refreshSeqCells();
+      });
+    });
+
+    ingredientsTbody.querySelectorAll('.ing-print-row').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const id = btn.getAttribute('data-id');
+        const entry = globalEntries.find(e => e.id === id);
+        if (entry) openPrintWindow([entry]);
+      });
+    });
+
+    const updateUsedCell = (e) => {
+      const c = ingredientsTbody.querySelector('.used-cell[data-id="' + e.id + '"]');
+      if (c) c.textContent = fmtW(e.weightUsed);
+    };
+
+    ingredientsTbody.querySelectorAll('.ing-count-input').forEach(inp => {
+      inp.addEventListener('change', () => {
+        const e = globalEntries.find(x => x.id === inp.getAttribute('data-id'));
+        if (!e) return;
+        const v = toNumber(inp.value);
+        if (isNaN(v) || v < 0) { inp.value = e.count; return; }
+        applyCount(e, v);
+        const changed = v !== e.group.origCount;
+        inp.classList.toggle('border-amber-400', changed);
+        inp.classList.toggle('bg-amber-50', changed);
+        inp.classList.toggle('border-gray-300', !changed);
+        updateUsedCell(e);
+        const pc = ingredientsTbody.querySelector('.per-cell[data-id="' + e.id + '"]');
+        if (pc) pc.textContent = fmtW(e.weightPerSet);
+        updatePreview();
+        updatePrintLabel();
+      });
+    });
+
+    ingredientsTbody.querySelectorAll('.copies-input').forEach(inp => {
+      inp.addEventListener('change', () => {
+        const id = inp.getAttribute('data-id');
+        let n = parseInt(inp.value, 10);
+        if (isNaN(n) || n < 1) n = 1;
+        if (n > 999) n = 999;
+        inp.value = n;
+        if (n === 1) copiesMap.delete(id); else copiesMap.set(id, n);
+        inp.classList.toggle('border-amber-400', n > 1);
+        inp.classList.toggle('bg-amber-50', n > 1);
+        inp.classList.toggle('border-gray-300', n === 1);
+        refreshSeqCells();
+      });
+    });
+
+    document.querySelectorAll('.unit-label').forEach(el => { el.textContent = '(' + printUnit + ')'; });
+    refreshSeqCells();
+  }
+
+  // ---------- ลำดับชุด (Auto + แก้เองได้) ----------
+  function getCopies(e) {
+    const n = copiesMap.get(e.id);
+    return n >= 1 ? n : 1;
+  }
+
+  function getSelectedEntries() {
+    return globalEntries.filter(e => selectedGroupKeys.has(e.group.key) && selectedEntryIds.has(e.id));
+  }
+
+  // เลขวิ่งต่อเนื่องตามลำดับที่พิมพ์ (ลำดับแถวในตาราง) เริ่มจาก seqStart
+  // ถ้าแถวไหนถูกแก้เลขเอง แถวนั้นใช้เลขที่แก้ และแถวถัดไปวิ่งต่อจากเลขนั้น
+  function computeSeqMap() {
+    const map = new Map();
+    let cur = seqStart;
+    getSelectedEntries().forEach(e => {
+      if (seqOverride.has(e.id)) cur = seqOverride.get(e.id);
+      map.set(e.id, cur);
+      cur += seqRun ? getCopies(e) : 1;   // พิมพ์หลายชุด + วิ่งต่อ: ชุดถัดไปใช้เลขถัดไป
+    });
+    return map;
+  }
+
+  function refreshSeqCells() {
+    // รีเซ็ตเลขที่แก้เองของแถวที่ไม่ได้ถูกเลือก (ติ๊กออก/ล้างการเลือก/ติ๊กกลุ่มออก) ให้กลับเป็น Auto
+    const selIds = new Set(getSelectedEntries().map(e => e.id));
+    [...seqOverride.keys()].forEach(id => { if (!selIds.has(id)) seqOverride.delete(id); });
+    // รีเซ็ต X จำนวนชุด (และ นน./ชุด, นน.ที่ใช้) ของแถวที่ไม่ได้ถูกเลือก กลับเป็นค่าเดิม
+    let countReset = false;
+    globalEntries.forEach(e => {
+      if (selIds.has(e.id) || e.count === e.group.count) return;
+      applyCount(e, e.group.count);
+      countReset = true;
+      const q = (sel) => ingredientsTbody.querySelector(sel + '[data-id="' + e.id + '"]');
+      const ci = q('.ing-count-input');
+      if (ci) {
+        ci.value = e.count;
+        const ch = e.count !== e.group.origCount;
+        ci.classList.toggle('border-amber-400', ch);
+        ci.classList.toggle('bg-amber-50', ch);
+        ci.classList.toggle('border-gray-300', !ch);
+      }
+      const uc = q('.used-cell'); if (uc) uc.textContent = fmtW(e.weightUsed);
+      const pc = q('.per-cell'); if (pc) pc.textContent = fmtW(e.weightPerSet);
+    });
+    if (countReset) { updatePreview(); updatePrintLabel(); }
+    // รีเซ็ตจำนวนชุดที่พิมพ์ของแถวที่ไม่ได้ถูกเลือก กลับเป็น 1
+    [...copiesMap.keys()].forEach(id => { if (!selIds.has(id)) copiesMap.delete(id); });
+    ingredientsTbody.querySelectorAll('.copies-input').forEach(inp => {
+      if (selIds.has(inp.getAttribute('data-id'))) return;
+      inp.value = 1;
+      inp.classList.remove('border-amber-400', 'bg-amber-50');
+      inp.classList.add('border-gray-300');
+    });
+    const map = computeSeqMap();
+    ingredientsTbody.querySelectorAll('.seq-input').forEach(inp => {
+      const id = inp.getAttribute('data-id');
+      const selected = map.has(id);
+      const manual = selected && seqOverride.has(id);
+      inp.value = selected ? String(map.get(id)) : '';
+      inp.disabled = !selected;
+      inp.classList.toggle('border-amber-400', manual);
+      inp.classList.toggle('bg-amber-50', manual);
+      inp.classList.toggle('border-gray-300', !manual);
+    });
+    ingredientsTbody.querySelectorAll('.seq-start-btn').forEach(btn => {
+      btn.disabled = !map.has(btn.getAttribute('data-id'));
+    });
+    updatePreview();
+    updatePrintLabel();
+  }
+
+  // ปุ่มพิมพ์: แสดงรูปแบบ + จำนวนสติกเกอร์/แผ่นที่จะพิมพ์จริง
+  function updatePrintLabel() {
+    const L = LAYOUTS[printLayout];
+    const per = L.cols * L.rows;
+    const total = getSelectedEntries().reduce((sum, e) => sum + getCopies(e) * splitParts(e).length, 0);
+    printLabelEl.textContent = 'พิมพ์สติกเกอร์ (' + per + ' ชิ้น/แผ่น)' +
+      (total ? ' · ' + total + ' ดวง / ' + Math.ceil(total / per) + ' แผ่น' : '');
+  }
+
+  // ---------- ข้อความ + QR ----------
+  function padSeq(n) { return String(n).padStart(4, '0'); }
+
+  // ข้อความที่พิมพ์บนสติกเกอร์และฝังใน QR: 5/0028 CTC/100 TAUR 0.003 KG
+  function buildQrText(e, seq, part) {
+    part = part || { k: 0, w: e.weightPerSet };
+    return currentDayCode() + '/' + padSeq(seq) + (part.k ? '/' + part.k : '') + ' ' + e.group.shortCode + ' ' + e.shortName + ' ' + fmtW(part.w) + ' ' + printUnit;
+  }
+
+  // สร้าง QR เป็น SVG (path เดียว) — ใช้ได้ทั้งหน้าจอและตอนพิมพ์
+  function qrSvg(text, size) {
+    if (typeof qrcode === 'undefined') return null;
+    // ให้รองรับข้อความภาษาไทย (UTF-8) ด้วย เผื่อชื่อย่อส่วนผสมว่างแล้วใช้ชื่อเต็มแทน
+    qrcode.stringToBytes = function (s) { return Array.from(new TextEncoder().encode(s)); };
+    const qr = qrcode(0, 'L');
+    qr.addData(text);
+    qr.make();
+    const n = qr.getModuleCount();
+    let d = '';
+    for (let r = 0; r < n; r++) {
+      for (let c = 0; c < n; c++) {
+        if (qr.isDark(r, c)) d += 'M' + c + ' ' + r + 'h1v1h-1z';
+      }
+    }
+    return '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ' + n + ' ' + n + '" width="' + size + '" height="' + size +
+      '" shape-rendering="crispEdges" style="display:block"><path d="' + d + '" fill="#000"/></svg>';
+  }
+
+  function updatePreview() {
+    optDateCode.textContent = currentDayCode();
+    const first = getSelectedEntries()[0];
+    if (!first) {
+      previewQr.innerHTML = 'QR';
+      previewText.textContent = 'เลือกงานและส่วนผสมเพื่อดูตัวอย่าง';
+      return;
+    }
+    const seq = computeSeqMap().get(first.id);
+    const text = buildQrText(first, seq, splitParts(first)[0]);
+    previewText.textContent = text;
+    previewQr.innerHTML = qrSvg(text, '100%') || 'QR';
+  }
+
+  setDateISO(todayInputValue());
+  optDate.addEventListener('input', () => {
+    const bad = optDate.value.trim() !== '' && !getDateISO();
+    optDate.classList.toggle('border-red-400', bad);
+    optDate.classList.toggle('bg-red-50', bad);
+    updatePreview();
+  });
+  optDate.addEventListener('blur', () => {       // จัดรูปแบบให้เป็น วว/ดด/ปปปป เมื่อพิมพ์เสร็จ
+    const iso = getDateISO();
+    if (iso) setDateISO(iso);
+    updatePreview();
+  });
+  const optDatePicker = document.getElementById('opt-date-picker');
+  optDatePicker.addEventListener('change', () => {
+    if (optDatePicker.value) { setDateISO(optDatePicker.value); updatePreview(); }
+  });
+  document.getElementById('btn-date-pick').addEventListener('click', () => {
+    const iso = getDateISO();
+    if (iso) optDatePicker.value = iso;
+    if (optDatePicker.showPicker) { try { optDatePicker.showPicker(); } catch (e) {} }
+  });
+  optDateTable.addEventListener('change', updatePreview);
+  optSeqStart.addEventListener('input', () => {
+    const n = parseInt(optSeqStart.value, 10);
+    seqStart = (isNaN(n) || n < 0) ? 1 : n;
+    refreshSeqCells();
+  });
+  document.getElementById('btn-seq-reset').addEventListener('click', () => {
+    seqOverride.clear();
+    refreshSeqCells();
+  });
+  optLayout.addEventListener('change', () => {
+    printLayout = LAYOUTS[parseInt(optLayout.value, 10)] ? parseInt(optLayout.value, 10) : 4;
+    updatePrintLabel();
+  });
+  optSeqRun.addEventListener('change', () => {
+    seqRun = optSeqRun.checked;
+    refreshSeqCells();
+  });
+  optUnit.addEventListener('change', () => {
+    printUnit = optUnit.value === 'G' ? 'G' : 'KG';
+    renderIngredients();
+  });
+
+  document.getElementById('btn-ing-select-all').addEventListener('click', () => {
+    globalEntries.filter(e => selectedGroupKeys.has(e.group.key)).forEach(e => { selectedEntryIds.add(e.id); removedIds.delete(e.id); });
+    renderIngredients();
+  });
+  document.getElementById('btn-ing-select-none').addEventListener('click', () => {
+    globalEntries.filter(e => selectedGroupKeys.has(e.group.key)).forEach(e => { selectedEntryIds.delete(e.id); removedIds.add(e.id); });
+    renderIngredients();
+  });
+
+  // ---------- Print ----------
+  // ขนาด tag จริง: 4.5cm × 3.5cm, padding 2mm 3mm  -> พื้นที่ใช้งานกว้าง 39mm
+  // เลย์เอาต์: [ QR 10mm ] [ 5/0028 NNSA4KX2G ]
+  //                     [ TAUR 0.003 KG    ]
+  // ข้อความทุกบรรทัดใช้ฟอนต์ monospace ตัวหนา และ SVG textLength เพื่อให้พอดีความกว้าง ไม่ล้น ไม่ตัด
+
+  // รูปแบบการพิมพ์ (แผ่นขนาด 9×7 cm เท่าเดิม) — ขนาดทั้งหมดเป็น mm
+  //  dir 'row' = QR ซ้าย ข้อความขวา / dir 'col' = QR บน ข้อความล่าง (จัดกึ่งกลาง)
+  const LAYOUTS = {
+    4: { cols: 2, rows: 2, tagW: 45, tagH: 35, dir: 'row', qr: 10, gap: 2, padX: 3, padY: 2, lineGap: 1.2, capPt: 9,  minPt: 4.5, border: true  },
+    2: { cols: 1, rows: 2, tagW: 90, tagH: 35, dir: 'row', qr: 24, gap: 4, padX: 5, padY: 3, lineGap: 2,   capPt: 16, minPt: 5,   border: true  },
+    1: { cols: 1, rows: 1, tagW: 90, tagH: 70, dir: 'col', qr: 34, gap: 3, padX: 4, padY: 3, lineGap: 2.5, capPt: 24, minPt: 6,   border: false }
+  };
+  const TAG_FONT_FAMILY = "Consolas, 'Courier New', monospace";
+  const CHAR_W = 0.6;       // ความกว้างตัวอักษร monospace ≈ 0.6 em
+  const PT_MM = 0.3528;     // 1pt = 0.3528mm
+
+  function escXml(s) {
+    return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  }
+
+  // ข้อความ 1 บรรทัด: ใหญ่สุดไม่เกิน capPt, ถ้ายาวเกินความกว้างจะลดฟอนต์ (ไม่ต่ำกว่า minPt) แล้วบีบให้พอดี
+  function svgLine(text, maxW_mm, capPt, minPt, fit) {
+    const n = Math.max(1, text.length);
+    const natural = maxW_mm / (n * CHAR_W * PT_MM);
+    const size = Math.max(minPt, Math.min(capPt, natural));
+    const w = Math.min(maxW_mm, n * CHAR_W * size * PT_MM);
+    const h = size * PT_MM * 1.25;
+    return '<svg xmlns="http://www.w3.org/2000/svg" width="' + (fit ? w.toFixed(2) : maxW_mm) + 'mm" height="' + h.toFixed(2) + 'mm" style="display:block;overflow:visible">' +
+      '<text x="0" y="' + (size * PT_MM * 0.95).toFixed(2) + 'mm" font-family="' + TAG_FONT_FAMILY + '" font-size="' + size.toFixed(2) +
+      'pt" font-weight="700" fill="#000" textLength="' + w.toFixed(2) + 'mm" lengthAdjust="spacingAndGlyphs">' + escXml(text) + '</text></svg>';
+  }
+
+  function buildTagHtml(e, seq, dayCode, L, part) {
+    part = part || { k: 0, w: e.weightPerSet };
+    const lot = dayCode + '/' + padSeq(seq) + (part.k ? '/' + part.k : '');
+    const weight = fmtW(part.w) + ' ' + printUnit;
+    const qr = qrSvg(buildQrText(e, seq, part), L.qr + 'mm');
+    const col = L.dir === 'col';
+    const sideW = col ? (L.tagW - 2 * L.padX) : (L.tagW - 2 * L.padX - L.qr - L.gap);
+
+    // ข้อความ 2 บรรทัด: [วันที่/ลำดับ รหัสงาน] / [ชื่อย่อ น้ำหนัก หน่วย]
+    return '<div class="tag"><div class="tag-inner">' +
+      '<div class="tag-top"><div class="tag-qr">' + qr + '</div>' +
+        '<div class="tag-side">' + svgLine(lot + ' ' + e.group.shortCode, sideW, L.capPt, L.minPt, col) +
+        svgLine(e.shortName + ' ' + weight, sideW, L.capPt, L.minPt, col) + '</div></div>' +
+    '</div></div>';
+  }
+
+  function openPrintWindow(entriesToPrint) {
+    if (!entriesToPrint || entriesToPrint.length === 0) {
+      showMessage('warning', 'กรุณาเลือกงานและส่วนผสมอย่างน้อย 1 รายการก่อนพิมพ์');
+      return;
+    }
+    if (typeof qrcode === 'undefined') {
+      showMessage('error', 'โหลดตัวสร้าง QR Code ไม่สำเร็จ กรุณารีเฟรชหน้าเว็บแล้วลองอีกครั้ง');
+      return;
+    }
+
+    const L = LAYOUTS[printLayout];
+    const perPage = L.cols * L.rows;
+    const col = L.dir === 'col';
+
+    // ลำดับชุด: ใช้เลขเดียวกับที่แสดงในตาราง (เรียงตามลำดับที่พิมพ์) — แต่ละรายการพิมพ์ตามจำนวนชุดที่เลือก
+    const seqMap = computeSeqMap();
+    const dayCode = currentDayCode();
+    const tagCards = [];
+    entriesToPrint.forEach(e => {
+      const base = seqMap.has(e.id) ? seqMap.get(e.id) : (seqOverride.has(e.id) ? seqOverride.get(e.id) : seqStart);
+      const n = getCopies(e);
+      const parts = splitParts(e);
+      for (let k = 0; k < n; k++) parts.forEach(pt => tagCards.push(buildTagHtml(e, seqRun ? base + k : base, dayCode, L, pt)));
+    });
+
+    // เติมช่องว่าง (ไม่ซ้ำสติกเกอร์) ให้ครบแผ่น
+    while (tagCards.length % perPage !== 0) tagCards.push('<div class="tag tag-empty"></div>');
+
+    let pagesHtml = '';
+    for (let i = 0; i < tagCards.length; i += perPage) {
+      pagesHtml += '<div class="print-page">' + tagCards.slice(i, i + perPage).join('') + '</div>';
+    }
+
+    const printHtml = `<!DOCTYPE html>
+<html lang="th"><head><meta charset="UTF-8">
+<title>พิมพ์สติกเกอร์ชั่งส่วนผสม</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  @page { size: 9cm 7cm; margin: 0; }
+  html, body {
+    width: 9cm;
+    margin: 0 !important; padding: 0 !important;
+    font-family: 'Tahoma', sans-serif;
+  }
+  @media print {
+    html, body { width: 9cm; margin: 0 !important; padding: 0 !important; }
+  }
+  .print-page {
+    width: 9cm; height: 7cm;
+    display: grid;
+    grid-template-columns: repeat(${L.cols}, ${L.tagW}mm);
+    grid-template-rows: repeat(${L.rows}, ${L.tagH}mm);
+    page-break-after: always; break-after: page;
+  }
+  .print-page:last-child { page-break-after: auto; break-after: auto; }
+  .tag {
+    width: ${L.tagW}mm; height: ${L.tagH}mm;
+    border: ${L.border ? '1px dashed #999' : 'none'};
+    overflow: hidden;
+  }
+  .tag.tag-empty { background: transparent; }
+  .tag-inner {
+    width: 100%; height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: ${col ? 'center' : 'flex-start'};
+    justify-content: center;
+    gap: ${L.lineGap}mm;
+    padding: ${L.padY}mm ${L.padX}mm;
+  }
+  .tag-top { display: flex; flex-direction: ${col ? 'column' : 'row'}; align-items: center; gap: ${L.gap}mm; }
+  .tag-qr { flex: none; width: ${L.qr}mm; height: ${L.qr}mm; }
+  .tag-side { display: flex; flex-direction: column; align-items: ${col ? 'center' : 'flex-start'}; gap: ${L.lineGap}mm; }
+  @media print { .tag { border-color: #bbb; } }
+</style>
+</head>
+<body>
+  ${pagesHtml}
+  <script>
+    window.onload = function() {
+      setTimeout(function() { window.print(); window.close(); }, 300);
+    };
+  <\/script>
+</body></html>`;
+
+    const pw = window.open('', '_blank');
+    if (!pw) {
+      showMessage('warning', 'เบราว์เซอร์บล็อกหน้าต่างพิมพ์ (Pop-up Blocked) กรุณาอนุญาตป๊อปอัพสำหรับหน้านี้แล้วลองอีกครั้ง');
+      return;
+    }
+    pw.document.write(printHtml);
+    pw.document.close();
+  }
+
+  document.getElementById('btn-print').addEventListener('click', () => {
+    openPrintWindow(getSelectedEntries());
+  });
+
+  updatePrintLabel();
+
+})();
+</script>
+</body>
+</html>

@@ -627,16 +627,14 @@
   // แก้จำนวนชุด: หาร นน.ที่ใช้ (รวม) เดิมในไฟล์ ด้วยจำนวนชุดที่แก้
   function applyCount(e, v) {
     e.count = v;
-    if (v === e.group.origCount) { e.weightPerSet = e.origPerSet; e.weightUsed = e.origUsed; return; }
+    if (v === e.group.origCount && v !== 1) { e.weightPerSet = e.origPerSet; e.weightUsed = e.origUsed; return; }
     if (v > 0) {
       // ดึง นน.ที่ใช้ (รวม) จากไฟล์ แล้วหารด้วยจำนวนชุดที่แก้
       // เก็บค่าเต็ม (ตัดแค่ floating noise) ทศนิยมที่แสดง/พิมพ์ปัดไม่เกิน 4 ตำแหน่งใน fmtW
       // นน.ที่ใช้ (รวม) คงค่าเดิมจากไฟล์เสมอ (เช่น 138.428)
       e.weightUsed = e.origUsed;
-      // เพิ่มจำนวนชุด (มากกว่าค่าเดิมในไฟล์): นน./ชุด เดิม ÷ จำนวนชุดที่แก้ (เช่น 69.214 ÷ 3 = 23.0713, ÷ 4 = 17.3035)
-      // ลดจำนวนชุด (น้อยกว่าค่าเดิมในไฟล์): นน.ที่ใช้ (รวม) ÷ จำนวนชุดที่แก้ (เช่น 138.428 ÷ 1 = 138.428, 13 ÷ 9 = 1.4444)
-      const base = v > e.group.origCount ? e.origPerSet : e.baseTotal;
-      e.weightPerSet = Number((base / v).toPrecision(12));
+      // นน./ชุด เดิมจากไฟล์ เป็นตัวตั้ง ÷ จำนวนชุดที่แก้ (เช่น 0.569 ÷ 2 = 0.2845, ÷ 1 = 0.569)
+      e.weightPerSet = Number((e.origPerSet / v).toPrecision(12));
     } else {
       e.weightPerSet = e.origPerSet;
       e.weightUsed = 0;

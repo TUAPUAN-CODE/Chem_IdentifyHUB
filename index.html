@@ -627,7 +627,6 @@
   // แก้จำนวนชุด: หาร นน.ที่ใช้ (รวม) เดิมในไฟล์ ด้วยจำนวนชุดที่แก้
   function applyCount(e, v) {
     e.count = v;
-    if (v === e.group.origCount && v !== 1) { e.weightPerSet = e.origPerSet; e.weightUsed = e.origUsed; return; }
     if (v > 0) {
       // ดึง นน.ที่ใช้ (รวม) จากไฟล์ แล้วหารด้วยจำนวนชุดที่แก้
       // เก็บค่าเต็ม (ตัดแค่ floating noise) ทศนิยมที่แสดง/พิมพ์ปัดไม่เกิน 4 ตำแหน่งใน fmtW

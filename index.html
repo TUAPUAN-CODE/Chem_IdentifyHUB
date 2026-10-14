@@ -994,8 +994,11 @@
     // รีเซ็ต X จำนวนชุด (และ นน./ชุด, นน.ที่ใช้) ของแถวที่ไม่ได้ถูกเลือก กลับเป็นค่าเดิม
     let countReset = false;
     globalEntries.forEach(e => {
-      if (selIds.has(e.id) || e.count === e.group.count) return;
-      applyCount(e, e.group.count);
+      if (selIds.has(e.id) || e.count === e.group.origCount) return;
+      // คืนค่าดิบจากไฟล์ตรงๆ (ไม่ผ่านสูตรหาร) เมื่อติ๊กออก/ล้างการเลือก
+      e.count = e.group.origCount;
+      e.weightPerSet = e.origPerSet;
+      e.weightUsed = e.origUsed;
       countReset = true;
       const q = (sel) => ingredientsTbody.querySelector(sel + '[data-id="' + e.id + '"]');
       const ci = q('.ing-count-input');

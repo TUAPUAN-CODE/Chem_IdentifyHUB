@@ -132,10 +132,11 @@
       <div>
         <label for="opt-unit" class="block text-sm font-semibold text-gray-700 mb-1">หน่วยน้ำหนัก</label>
         <select id="opt-unit" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm bg-white">
-          <option value="KG">KG (กิโลกรัม)</option>
-          <option value="G">G (กรัม)</option>
+          <option value="AUTO">AUTO (ตามแต่ละงาน)</option>
+          <option value="KG">KG ทุกงาน</option>
+          <option value="G">G ทุกงาน</option>
         </select>
-        <p class="text-xs text-gray-500 mt-1">ข้อมูลในไฟล์เป็น KG — เลือก G ระบบจะแปลงค่าให้ (× 1,000)</p>
+        <p class="text-xs text-gray-500 mt-1">ข้อมูลในไฟล์เป็น KG — เลือก G ระบบจะแปลงค่าให้ (× 1,000) · AUTO = ตรวจหน่วยจากหัวคอลัมน์ของแต่ละงานอัตโนมัติ แก้รายแถวได้ในตารางด้านล่าง</p>
       </div>
       <div>
         <label for="opt-layout" class="block text-sm font-semibold text-gray-700 mb-1">รูปแบบการพิมพ์ต่อแผ่น</label>
@@ -270,7 +271,7 @@
   let printLayout = 4;             // 4 | 2 | 1 ข้อมูลต่อแผ่น
   let seqRun = true;               // พิมพ์หลายชุด: เลขลำดับวิ่งต่อทุกชุด
   const copiesMap = new Map();     // entry id -> จำนวนชุดที่จะพิมพ์ (ค่าเริ่มต้น 1)
-  let printUnit = 'KG';            // 'KG' | 'G'
+  let printUnit = 'AUTO';          // 'AUTO' (ตรวจหน่วยต่องาน/แถว) | 'KG' | 'G' (บังคับทุกแถว)
   let seqStart = 1;                // เลขลำดับชุดเริ่มต้น (Auto)
   const seqOverride = new Map();   // entry id -> เลขลำดับชุดที่ผู้ใช้แก้เอง (แถวถัดไปจะวิ่งต่อจากเลขนี้)
 
@@ -417,12 +418,27 @@
     return s;
   }
 
-  // แปลงน้ำหนัก (ในไฟล์เป็น KG) เป็นหน่วยที่ผู้ใช้เลือก: KG = ทศนิยมอย่างน้อย 3 ตำแหน่ง (ไม่ปัดทิ้งค่าเล็กๆ เช่น 0.0014), G = × 1,000
-  function fmtW(kg) {
+  // แปลงน้ำหนัก (ในไฟล์เป็น KG) เป็นหน่วยที่ระบุ: KG = ทศนิยมอย่างน้อย 3 ตำแหน่ง (ไม่ปัดทิ้งค่าเล็กๆ เช่น 0.0014), G = × 1,000
+  // unit ไม่ระบุ = ใช้ printUnit (เฉพาะตอนไม่ใช่ AUTO) — ส่วนที่ผูกกับแถวข้อมูลต้องส่ง unitOf(e) มาเสมอ
+  function fmtW(kg, unit) {
     const v = toNumber(kg);
     if (isNaN(v)) return '-';
-    return printUnit === 'G' ? trimNum(v * 1e3, 3, 0) : trimNum(v, 4, 3);
+    const u = unit || (printUnit === 'G' ? 'G' : 'KG');
+    return u === 'G' ? trimNum(v * 1e3, 3, 0) : trimNum(v, 4, 3);
   }
+  // หน่วยที่ใช้แสดง/พิมพ์จริงของแถวนี้: AUTO = ตามที่ผู้ใช้เลือกรายแถว (e.unit) หรือหน่วยที่ตรวจเจอของงานนั้น (e.group.unit) | บังคับ = ตาม printUnit ทุกแถว
+  function unitOf(e) {
+    if (printUnit === 'AUTO') return (e.unit || (e.group && e.group.unit) || 'KG');
+    return printUnit;
+  }
+  // แปลงค่าที่พิมพ์กลับ (ผู้ใช้พิมพ์ในหน่วยที่แสดงอยู่ เช่น G) ให้กลับเป็นสเกล KG ดิบก่อนเก็บ
+  function parseWInput(text, unit) {
+    const v = toNumber(text);
+    if (isNaN(v)) return NaN;
+    return unit === 'G' ? v / 1e3 : v;
+  }
+  // ข้อความที่พิมพ์เองไว้ (usedText) แสดงตามที่พิมพ์ทุกตัวอักษร ไม่ปัด ไม่แปลงหน่วยซ้ำ — ไม่มี = ฟอร์แมตจาก weightUsed ตามหน่วยปัจจุบัน
+  function showUsed(e) { return e.usedText != null ? e.usedText : fmtW(e.weightUsed, unitOf(e)); }
 
   // ---------- File loading ----------
   ['dragover', 'dragleave', 'drop'].forEach(evt => {
@@ -499,6 +515,24 @@
   const cellKey = (v) => String(v == null ? '' : v).replace(/[\s\u00a0]+/g, '');
   const L_PER_SET = 'นน./ชุด', L_USED = 'นน.ที่ใช้', L_COUNT = 'จำนวนชุด';
 
+  // ---------- ตรวจหน่วยของแต่ละงาน (กรัม/กิโลกรัม) จากข้อความหัวคอลัมน์ ----------
+  // ลำดับ: 1) "เบิกเป็น g./กรัม" -> G | 2) มี kg -> KG | 3) มี "g." โดดๆ (ตัวพิมพ์เล็ก) -> G | 4) ไม่มีอะไรเลย -> KG
+  // ค่าตัวเลขใช้ตามที่อยู่ในไฟล์ ไม่แปลงหน่วย แค่ติดป้ายหน่วยตามที่ตรวจเจอ
+  function detectGroupUnit(texts) {
+    const t = texts.filter(x => x != null && x !== '').map(x => String(x)).join(' | ');
+    let m;
+    if ((m = t.match(/เบิก\s*เป็น\s*(?:g|gm|gram)s?(?![A-Za-z])\.?/i)) ||
+        (m = t.match(/(?<!กิโล)กรัม/)) ||
+        (m = t.match(/(?<![A-Za-z])grams?(?![A-Za-z])/i)))
+      return { unit: 'G', why: '1) ' + m[0].trim() };
+    if ((m = t.match(/(?<![A-Za-z])(?:kgs?|kilograms?)(?![A-Za-z])\.?/i)) ||
+        (m = t.match(/กิโลกรัม|กิโล|กก\./)))
+      return { unit: 'KG', why: '2) ' + m[0].trim() };
+    if ((m = t.match(/(?<=[\d\s.,])(?:g|gm)\.?(?=\s|\||$)/)))
+      return { unit: 'G', why: '3) "' + m[0].trim() + '"' };
+    return { unit: 'KG', why: '4) ไม่พบหน่วย' };
+  }
+
   function detectMatrixLayout(data) {
     const scanLimit = Math.min(data.length, 25);
     let unitRow = -1;
@@ -568,6 +602,13 @@
         const descRaw = descRowArr[c];
         const description = (typeof descRaw === 'string') ? descRaw.trim() : (descRaw == null ? '' : String(descRaw));
         const countVal = toNumber(cntRowArr[c + 1]);
+        // ตรวจหน่วย G/KG ของงานนี้จากหัวคอลัมน์ทั้งหมดเหนือแถว "นน./ชุด" (รหัสงาน/คำอธิบาย/ฯลฯ ของคอลัมน์ c, c+1)
+        const unitHints = [];
+        for (let hr = 0; hr < unitRow; hr++) {
+          const hrow = data[hr] || [];
+          [c, c + 1].forEach(cc => { if (typeof hrow[cc] === 'string') unitHints.push(hrow[cc]); });
+        }
+        const unitDet = detectGroupUnit(unitHints);
         groups.push({
           key: shortCode + '#' + c,
           colWeightPerSet: c,
@@ -576,6 +617,9 @@
           prefix: shortCode.split('/')[0].trim(),
           jobCode: jobCode,
           description: description,
+          unit: unitDet.unit,
+          unitAuto: unitDet.unit,
+          unitWhy: unitDet.why,
           count: isNaN(countVal) ? 0 : countVal,
           origCount: isNaN(countVal) ? 0 : countVal
         });
@@ -613,7 +657,10 @@
           group: g,
           weightPerSet: wPerSet,
           count: g.count,
-          weightUsed: isNaN(wUsed) ? (wPerSet * g.count) : wUsed
+          weightUsed: isNaN(wUsed) ? (wPerSet * g.count) : wUsed,
+          unit: null,          // null = ใช้หน่วยของงาน (g.unit) ตอน AUTO — แก้รายแถวได้
+          usedManual: false,   // true = ผู้ใช้พิมพ์ "นน.ที่ใช้ (รวม)" เองอิสระ ไม่ให้สูตรหารมาทับ
+          usedText: null       // ข้อความที่พิมพ์เอง (แสดงตามที่พิมพ์ทุกตัวอักษร)
         });
         const ne = entries[entries.length - 1];
         ne.origPerSet = ne.weightPerSet;
@@ -629,15 +676,13 @@
   function applyCount(e, v) {
     e.count = v;
     if (v > 0) {
-      // ดึง นน.ที่ใช้ (รวม) จากไฟล์ แล้วหารด้วยจำนวนชุดที่แก้
-      // เก็บค่าเต็ม (ตัดแค่ floating noise) ทศนิยมที่แสดง/พิมพ์ปัดไม่เกิน 4 ตำแหน่งใน fmtW
-      // นน.ที่ใช้ (รวม) คงค่าเดิมจากไฟล์เสมอ (เช่น 138.428)
-      e.weightUsed = e.origUsed;
+      // นน.ที่ใช้ (รวม) คงค่าเดิมจากไฟล์เสมอ — ยกเว้นผู้ใช้พิมพ์ "นน.ที่ใช้ (รวม)" เองไว้แล้ว (usedManual) ให้คงค่าที่พิมพ์เอง ไม่ทับ
+      if (!e.usedManual) e.weightUsed = e.origUsed;
       // นน./ชุด เดิมจากไฟล์ เป็นตัวตั้ง ÷ จำนวนชุดที่แก้ (เช่น 0.569 ÷ 2 = 0.2845, ÷ 1 = 0.569)
       e.weightPerSet = Number((e.origPerSet / v).toPrecision(12));
     } else {
       e.weightPerSet = e.origPerSet;
-      e.weightUsed = 0;
+      if (!e.usedManual) e.weightUsed = 0;
     }
   }
 
@@ -878,9 +923,15 @@
         <td class="px-4 py-2 font-semibold text-corporate-700">${escapeHtml(e.group.shortCode)}</td>
         <td class="px-4 py-2">${escapeHtml(e.shortName)}</td>
         <td class="px-4 py-2 text-gray-500">${escapeHtml(e.ingredientName)}</td>
-        <td class="px-4 py-2 text-right per-cell" data-id="${escapeHtml(e.id)}">${fmtW(e.weightPerSet)}</td>
+        <td class="px-4 py-2 text-right whitespace-nowrap">
+          <span class="per-cell" data-id="${escapeHtml(e.id)}">${fmtW(e.weightPerSet, unitOf(e))}</span>
+          <select class="ing-unit-select text-xs border rounded-md px-1 py-1 ml-1 ${unitOf(e) === 'G' ? 'border-amber-400 bg-amber-50 text-amber-700 font-semibold' : 'border-gray-300 bg-white'}" data-id="${escapeHtml(e.id)}" ${printUnit !== 'AUTO' ? 'disabled' : ''} title="หน่วยของแถวนี้ (ตรวจอัตโนมัติจากไฟล์ แก้เองได้)">
+            <option value="KG" ${unitOf(e) === 'KG' ? 'selected' : ''}>KG</option>
+            <option value="G" ${unitOf(e) === 'G' ? 'selected' : ''}>G</option>
+          </select>
+        </td>
         <td class="px-4 py-2 text-right whitespace-nowrap">X <input type="number" min="0" step="any" class="ing-count-input w-20 text-right border rounded-md px-2 py-1 text-sm ${e.count !== e.group.origCount ? 'border-amber-400 bg-amber-50' : 'border-gray-300'}" data-id="${escapeHtml(e.id)}" value="${e.count}"></td>
-        <td class="px-4 py-2 text-right used-cell" data-id="${escapeHtml(e.id)}">${fmtW(e.weightUsed)}</td>
+        <td class="px-4 py-2 text-right whitespace-nowrap"><input type="text" inputmode="decimal" class="used-input w-28 text-right border rounded-md px-2 py-1 text-sm ${e.usedManual ? 'border-amber-400 bg-amber-50' : 'border-gray-300'}" data-id="${escapeHtml(e.id)}" value="${escapeHtml(showUsed(e))}" title="แก้ได้อิสระ ไม่ถูกสูตรหารทับ"></td>
       </tr>`;
     }).join('');
 
@@ -926,8 +977,13 @@
     });
 
     const updateUsedCell = (e) => {
-      const c = ingredientsTbody.querySelector('.used-cell[data-id="' + e.id + '"]');
-      if (c) c.textContent = fmtW(e.weightUsed);
+      const c = ingredientsTbody.querySelector('.used-input[data-id="' + e.id + '"]');
+      if (c) {
+        c.value = showUsed(e);
+        c.classList.toggle('border-amber-400', e.usedManual);
+        c.classList.toggle('bg-amber-50', e.usedManual);
+        c.classList.toggle('border-gray-300', !e.usedManual);
+      }
     };
 
     ingredientsTbody.querySelectorAll('.ing-count-input').forEach(inp => {
@@ -943,11 +999,38 @@
         inp.classList.toggle('border-gray-300', !changed);
         updateUsedCell(e);
         const pc = ingredientsTbody.querySelector('.per-cell[data-id="' + e.id + '"]');
-        if (pc) pc.textContent = fmtW(e.weightPerSet);
+        if (pc) pc.textContent = fmtW(e.weightPerSet, unitOf(e));
         updatePreview();
         updatePrintLabel();
       };
       // ใช้ change เฉยๆ ไม่พอ: เบราว์เซอร์ไม่ยิง change ถ้าค่าสุดท้ายเท่ากับค่าตอนเริ่มโฟกัส (เช่น ลบ 2 แล้วพิมพ์ 2 กลับ) และ Enter เฉยๆ ก็ไม่ blur ช่อง — จึงต้องดัก Enter เองด้วย
+      inp.addEventListener('change', commit);
+      inp.addEventListener('keydown', (ev) => { if (ev.key === 'Enter') { ev.preventDefault(); commit(); } });
+    });
+
+    ingredientsTbody.querySelectorAll('.ing-unit-select').forEach(sel => {
+      sel.addEventListener('change', () => {
+        const e = globalEntries.find(x => x.id === sel.getAttribute('data-id'));
+        if (!e) return;
+        e.unit = sel.value === 'G' ? 'G' : 'KG';
+        renderIngredients();
+      });
+    });
+
+    ingredientsTbody.querySelectorAll('.used-input').forEach(inp => {
+      const commit = () => {
+        const e = globalEntries.find(x => x.id === inp.getAttribute('data-id'));
+        if (!e) return;
+        const v = parseWInput(inp.value, unitOf(e));
+        if (isNaN(v) || v < 0) { inp.value = showUsed(e); return; }
+        e.weightUsed = v;
+        e.usedText = inp.value.trim();
+        e.usedManual = true;
+        inp.classList.add('border-amber-400', 'bg-amber-50');
+        inp.classList.remove('border-gray-300');
+        updatePreview();
+        updatePrintLabel();
+      };
       inp.addEventListener('change', commit);
       inp.addEventListener('keydown', (ev) => { if (ev.key === 'Enter') { ev.preventDefault(); commit(); } });
     });
@@ -967,7 +1050,7 @@
       });
     });
 
-    document.querySelectorAll('.unit-label').forEach(el => { el.textContent = '(' + printUnit + ')'; });
+    document.querySelectorAll('.unit-label').forEach(el => { el.textContent = printUnit === 'AUTO' ? '(KG/G)' : '(' + printUnit + ')'; });
     refreshSeqCells();
   }
 
@@ -1001,11 +1084,15 @@
     // รีเซ็ต X จำนวนชุด (และ นน./ชุด, นน.ที่ใช้) ของแถวที่ไม่ได้ถูกเลือก กลับเป็นค่าเดิม
     let countReset = false;
     globalEntries.forEach(e => {
-      if (selIds.has(e.id) || (e.count === e.group.origCount && e.weightPerSet === e.origPerSet)) return;
-      // คืนค่าดิบจากไฟล์ตรงๆ (ไม่ผ่านสูตรหาร) เมื่อติ๊กออก/ล้างการเลือก
+      const untouched = e.count === e.group.origCount && e.weightPerSet === e.origPerSet && !e.usedManual && e.unit == null;
+      if (selIds.has(e.id) || untouched) return;
+      // คืนค่าดิบจากไฟล์ตรงๆ (ไม่ผ่านสูตรหาร) เมื่อติ๊กออก/ล้างการเลือก — รวมถึงหน่วยและ "นน.ที่ใช้" ที่พิมพ์เอง
       e.count = e.group.origCount;
       e.weightPerSet = e.origPerSet;
       e.weightUsed = e.origUsed;
+      e.usedManual = false;
+      e.usedText = null;
+      e.unit = null;
       countReset = true;
       const q = (sel) => ingredientsTbody.querySelector(sel + '[data-id="' + e.id + '"]');
       const ci = q('.ing-count-input');
@@ -1016,8 +1103,14 @@
         ci.classList.toggle('bg-amber-50', ch);
         ci.classList.toggle('border-gray-300', !ch);
       }
-      const uc = q('.used-cell'); if (uc) uc.textContent = fmtW(e.weightUsed);
-      const pc = q('.per-cell'); if (pc) pc.textContent = fmtW(e.weightPerSet);
+      const uc = q('.used-input');
+      if (uc) {
+        uc.value = showUsed(e);
+        uc.classList.remove('border-amber-400', 'bg-amber-50');
+        uc.classList.add('border-gray-300');
+      }
+      const pc = q('.per-cell'); if (pc) pc.textContent = fmtW(e.weightPerSet, unitOf(e));
+      const us = q('.ing-unit-select'); if (us) us.value = unitOf(e);
     });
     if (countReset) { updatePreview(); updatePrintLabel(); }
     // รีเซ็ตจำนวนชุดที่พิมพ์ของแถวที่ไม่ได้ถูกเลือก กลับเป็น 1
@@ -1061,7 +1154,7 @@
   // ข้อความที่พิมพ์บนสติกเกอร์และฝังใน QR: 5/0028 CTC/100 TAUR 0.003 KG
   function buildQrText(e, seq, part) {
     part = part || { k: 0, w: e.weightPerSet };
-    return currentDayCode() + '/' + padSeq(seq) + (part.k ? '/' + part.k : '') + ' ' + e.group.shortCode + ' ' + e.shortName + ' ' + fmtW(part.w) + ' ' + printUnit;
+    return currentDayCode() + '/' + padSeq(seq) + (part.k ? '/' + part.k : '') + ' ' + e.group.shortCode + ' ' + e.shortName + ' ' + fmtW(part.w, unitOf(e)) + ' ' + unitOf(e);
   }
 
   // สร้าง QR เป็น SVG (path เดียว) — ใช้ได้ทั้งหน้าจอและตอนพิมพ์
@@ -1137,8 +1230,9 @@
     refreshSeqCells();
   });
   optUnit.addEventListener('change', () => {
-    printUnit = optUnit.value === 'G' ? 'G' : 'KG';
+    printUnit = optUnit.value === 'G' ? 'G' : (optUnit.value === 'KG' ? 'KG' : 'AUTO');
     renderIngredients();
+    updatePreview();
   });
 
   document.getElementById('btn-ing-select-all').addEventListener('click', () => {
@@ -1186,7 +1280,7 @@
   function buildTagHtml(e, seq, dayCode, L, part) {
     part = part || { k: 0, w: e.weightPerSet };
     const lot = dayCode + '/' + padSeq(seq) + (part.k ? '/' + part.k : '');
-    const weight = fmtW(part.w) + ' ' + printUnit;
+    const weight = fmtW(part.w, unitOf(e)) + ' ' + unitOf(e);
     const qr = qrSvg(buildQrText(e, seq, part), L.qr + 'mm');
     const col = L.dir === 'col';
     const sideW = col ? (L.tagW - 2 * L.padX) : (L.tagW - 2 * L.padX - L.qr - L.gap);

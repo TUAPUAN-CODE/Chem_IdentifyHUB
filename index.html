@@ -561,7 +561,8 @@
       if (cellKey(unitRowArr[c]) === L_PER_SET && cellKey(unitRowArr[c + 1]) === L_USED) {
         const shortCodeRaw = shortRowArr[c];
         if (!shortCodeRaw || typeof shortCodeRaw !== 'string' || !shortCodeRaw.includes('/')) continue;
-        const shortCode = shortCodeRaw.trim();
+        // ตัด .0 ท้ายตัวเลขออก (เช่น T038/620.0 -> T038/620) ไม่แตะทศนิยมที่ไม่ใช่ศูนย์ (เช่น 620.5)
+        const shortCode = shortCodeRaw.trim().replace(/\.0+$/, '');
         const jobCodeRaw = jobRowArr[c];
         const jobCode = (typeof jobCodeRaw === 'string') ? jobCodeRaw.trim() : (jobCodeRaw == null ? '' : String(jobCodeRaw));
         const descRaw = descRowArr[c];

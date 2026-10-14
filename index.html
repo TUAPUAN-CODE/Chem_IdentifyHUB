@@ -561,8 +561,8 @@
       if (cellKey(unitRowArr[c]) === L_PER_SET && cellKey(unitRowArr[c + 1]) === L_USED) {
         const shortCodeRaw = shortRowArr[c];
         if (!shortCodeRaw || typeof shortCodeRaw !== 'string' || !shortCodeRaw.includes('/')) continue;
-        // ตัด .0 ท้ายตัวเลขออก (เช่น T038/620.0 -> T038/620) ไม่แตะทศนิยมที่ไม่ใช่ศูนย์ (เช่น 620.5)
-        const shortCode = shortCodeRaw.trim().replace(/\.0+$/, '');
+        // ตัดทศนิยมที่เป็นศูนย์ล้วนออก ไม่ว่าจะอยู่ท้ายสุดหรือตามด้วยข้อความอื่น (เช่น T038/620.0 -> T038/620, 240.000 kg. -> 240 kg.) ไม่แตะทศนิยมที่ไม่ใช่ศูนย์ (เช่น 620.5, 56.112)
+        const shortCode = shortCodeRaw.trim().replace(/\.0+(?=\D|$)/g, '');
         const jobCodeRaw = jobRowArr[c];
         const jobCode = (typeof jobCodeRaw === 'string') ? jobCodeRaw.trim() : (jobCodeRaw == null ? '' : String(jobCodeRaw));
         const descRaw = descRowArr[c];

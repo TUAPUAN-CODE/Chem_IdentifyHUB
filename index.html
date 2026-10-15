@@ -420,11 +420,25 @@
 
   // แปลงน้ำหนัก (ในไฟล์เป็น KG) เป็นหน่วยที่ระบุ: KG = ทศนิยมอย่างน้อย 3 ตำแหน่ง (ไม่ปัดทิ้งค่าเล็กๆ เช่น 0.0014), G = × 1,000
   // unit ไม่ระบุ = ใช้ printUnit (เฉพาะตอนไม่ใช่ AUTO) — ส่วนที่ผูกกับแถวข้อมูลต้องส่ง unitOf(e) มาเสมอ
+  // ไม่ใส่ , คั่นหลักพัน — ใช้กับข้อความที่พิมพ์ลง QR/สติกเกอร์ ต้องเป็นตัวเลขดิบให้ระบบอื่นอ่านต่อได้
   function fmtW(kg, unit) {
     const v = toNumber(kg);
     if (isNaN(v)) return '-';
     const u = unit || (printUnit === 'G' ? 'G' : 'KG');
     return u === 'G' ? trimNum(v * 1e3, 3, 0) : trimNum(v, 4, 3);
+  }
+  // ใส่ , คั่นหลักพันทุก 3 ตัว (เช่น 6084 -> 6,084) — ใช้แสดงผลในตารางเท่านั้น ไม่ใช้กับ QR/สติกเกอร์
+  function addThousandsCommas(numStr) {
+    const neg = numStr.startsWith('-');
+    if (neg) numStr = numStr.slice(1);
+    const [intPart, decPart] = numStr.split('.');
+    const withCommas = intPart.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+    return (neg ? '-' : '') + withCommas + (decPart ? '.' + decPart : '');
+  }
+  // ตัวเลขที่แสดงในตาราง (มี , คั่นหลักพัน) — ห้ามใช้กับข้อความที่ไปพิมพ์ลง QR/สติกเกอร์
+  function fmtWC(kg, unit) {
+    const s = fmtW(kg, unit);
+    return s === '-' ? s : addThousandsCommas(s);
   }
   // หน่วยที่ใช้แสดง/พิมพ์จริงของแถวนี้: AUTO = ตามที่ผู้ใช้เลือกรายแถว (e.unit) หรือหน่วยที่ตรวจเจอของงานนั้น (e.group.unit) | บังคับ = ตาม printUnit ทุกแถว
   function unitOf(e) {
@@ -438,7 +452,7 @@
     return unit === 'G' ? v / 1e3 : v;
   }
   // ข้อความที่พิมพ์เองไว้ (usedText) แสดงตามที่พิมพ์ทุกตัวอักษร ไม่ปัด ไม่แปลงหน่วยซ้ำ — ไม่มี = ฟอร์แมตจาก weightUsed ตามหน่วยปัจจุบัน
-  function showUsed(e) { return e.usedText != null ? e.usedText : fmtW(e.weightUsed, unitOf(e)); }
+  function showUsed(e) { return e.usedText != null ? e.usedText : fmtWC(e.weightUsed, unitOf(e)); }
 
   // ---------- File loading ----------
   ['dragover', 'dragleave', 'drop'].forEach(evt => {
@@ -924,7 +938,7 @@
         <td class="px-4 py-2">${escapeHtml(e.shortName)}</td>
         <td class="px-4 py-2 text-gray-500">${escapeHtml(e.ingredientName)}</td>
         <td class="px-4 py-2 text-right whitespace-nowrap">
-          <span class="per-cell" data-id="${escapeHtml(e.id)}">${fmtW(e.weightPerSet, unitOf(e))}</span>
+          <span class="per-cell" data-id="${escapeHtml(e.id)}">${fmtWC(e.weightPerSet, unitOf(e))}</span>
           <select class="ing-unit-select text-xs border rounded-md px-1 py-1 ml-1 ${unitOf(e) === 'G' ? 'border-amber-400 bg-amber-50 text-amber-700 font-semibold' : 'border-gray-300 bg-white'}" data-id="${escapeHtml(e.id)}" ${printUnit !== 'AUTO' ? 'disabled' : ''} title="หน่วยของแถวนี้ (ตรวจอัตโนมัติจากไฟล์ แก้เองได้)">
             <option value="KG" ${unitOf(e) === 'KG' ? 'selected' : ''}>KG</option>
             <option value="G" ${unitOf(e) === 'G' ? 'selected' : ''}>G</option>
@@ -999,7 +1013,7 @@
         inp.classList.toggle('border-gray-300', !changed);
         updateUsedCell(e);
         const pc = ingredientsTbody.querySelector('.per-cell[data-id="' + e.id + '"]');
-        if (pc) pc.textContent = fmtW(e.weightPerSet, unitOf(e));
+        if (pc) pc.textContent = fmtWC(e.weightPerSet, unitOf(e));
         updatePreview();
         updatePrintLabel();
       };
@@ -1109,7 +1123,7 @@
         uc.classList.remove('border-amber-400', 'bg-amber-50');
         uc.classList.add('border-gray-300');
       }
-      const pc = q('.per-cell'); if (pc) pc.textContent = fmtW(e.weightPerSet, unitOf(e));
+      const pc = q('.per-cell'); if (pc) pc.textContent = fmtWC(e.weightPerSet, unitOf(e));
       const us = q('.ing-unit-select'); if (us) us.value = unitOf(e);
     });
     if (countReset) { updatePreview(); updatePrintLabel(); }

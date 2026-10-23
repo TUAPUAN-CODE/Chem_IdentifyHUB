@@ -102,7 +102,7 @@
     </div>
     <div class="p-6 grid gap-5 md:grid-cols-2 xl:grid-cols-3">
       <div>
-        <label for="opt-date" class="block text-sm font-semibold text-gray-700 mb-1">วันที่ (แปลงเป็นรหัสวันที่)</label>
+        <label for="opt-date" class="block text-sm font-semibold text-gray-700 mb-1">วันที่ (แปลงเป็นรหัสวันที่ระบบ SAP)</label>
         <div class="flex gap-2">
           <input id="opt-date" type="text" inputmode="numeric" placeholder="วว/ดด/ปปปป เช่น 03/09/2026" autocomplete="off" class="flex-1 min-w-0 border border-gray-300 rounded-lg px-3 py-2 text-sm">
           <button id="btn-date-pick" type="button" title="เลือกจากปฏิทิน" class="relative border border-gray-300 bg-white hover:bg-gray-50 rounded-lg px-3 text-gray-600">
@@ -111,15 +111,8 @@
           </button>
         </div>
         <p class="text-xs text-gray-500 mt-1">รหัสที่จะพิมพ์: <span id="opt-date-code" class="font-bold text-corporate-700 text-sm"></span></p>
+        <p class="text-xs text-gray-500 mt-0.5">ตามตารางวันที่ระบบ SAP: วันที่ 1-9 พิมพ์เป็นตัวเลข ตั้งแต่ 10 เป็นต้นไปพิมพ์เป็นตัวอักษร</p>
         <p id="opt-date-src" class="text-xs text-gray-400 mt-0.5"></p>
-      </div>
-      <div>
-        <label for="opt-date-table" class="block text-sm font-semibold text-gray-700 mb-1">ตารางตัวอักษรวันที่</label>
-        <select id="opt-date-table" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm bg-white">
-          <option value="main">วันที่ปกติ (1-9 = เลข, 10 = A ... 31 = Z)</option>
-          <option value="rm">วันที่ R/M (วันที่ 23-28 เลื่อนตัวอักษร)</option>
-        </select>
-        <p class="text-xs text-gray-500 mt-1">วันที่ 1-9 พิมพ์เป็นตัวเลข ตั้งแต่ 10 เป็นต้นไปพิมพ์เป็นตัวอักษร</p>
       </div>
       <div>
         <label for="opt-seq-start" class="block text-sm font-semibold text-gray-700 mb-1">ลำดับชุดเริ่มต้น (Auto)</label>
@@ -257,7 +250,6 @@
   // ---------- Print options state ----------
   const printSettingsPanel = document.getElementById('print-settings-panel');
   const optDate = document.getElementById('opt-date');
-  const optDateTable = document.getElementById('opt-date-table');
   const optDateCode = document.getElementById('opt-date-code');
   const optSeqStart = document.getElementById('opt-seq-start');
   const optUnit = document.getElementById('opt-unit');
@@ -275,14 +267,11 @@
   let seqStart = 1;                // เลขลำดับชุดเริ่มต้น (Auto)
   const seqOverride = new Map();   // entry id -> เลขลำดับชุดที่ผู้ใช้แก้เอง (แถวถัดไปจะวิ่งต่อจากเลขนี้)
 
-  // ตารางแปลงวันที่ -> ตัวอักษร (ตามรูปที่แนบ): 1-9 เป็นเลข, 10 = A, 11 = B ... 31 = Z (ไม่มี I, O, Q, U ในชุดหลัก)
+  // ตารางวันที่ระบบ SAP (ตามรูปที่แนบ): 1-9 เป็นเลข, 10 = A, 11 = B ... 31 = Z (ไม่มี I, O, Q, Y)
   const DAY_CODES = { 10:'A', 11:'B', 12:'C', 13:'D', 14:'E', 15:'F', 16:'G', 17:'H', 18:'J', 19:'K',
-                      20:'L', 21:'M', 22:'N', 23:'O', 24:'P', 25:'R', 26:'S', 27:'T', 28:'V', 29:'W', 30:'X', 31:'Z' };
-  // วันที่ R/M: ตั้งแต่วันที่ 23-28 ตัวอักษรเลื่อนไป (O->P, P->R, R->S, S->T, T->U, V->V)
-  const RM_DAY_CODES = { 23:'P', 24:'R', 25:'S', 26:'T', 27:'U', 28:'V' };
+                      20:'L', 21:'M', 22:'N', 23:'P', 24:'R', 25:'S', 26:'T', 27:'U', 28:'V', 29:'W', 30:'X', 31:'Z' };
 
-  function dayToCode(day, useRM) {
-    if (useRM && RM_DAY_CODES[day]) return RM_DAY_CODES[day];
+  function dayToCode(day) {
     return day <= 9 ? String(day) : (DAY_CODES[day] || String(day));
   }
 
@@ -297,11 +286,11 @@
   function setDateISO(iso) { optDate.value = isoToDisplay(iso); optDate.classList.remove('border-red-400', 'bg-red-50'); }
   function getDateISO() { return parseDateText(optDate.value); }
 
-  // รหัสวันที่ปัจจุบันตามช่องวันที่ + ตารางที่เลือก
+  // รหัสวันที่ปัจจุบันตามช่องวันที่
   function currentDayCode() {
     const v = getDateISO() || todayInputValue();
     const day = parseInt(v.slice(8, 10), 10);
-    return dayToCode(day, optDateTable.value === 'rm');
+    return dayToCode(day);
   }
 
   // ---------- ดึงวันที่จากไฟล์ ----------
@@ -1225,7 +1214,6 @@
     if (iso) optDatePicker.value = iso;
     if (optDatePicker.showPicker) { try { optDatePicker.showPicker(); } catch (e) {} }
   });
-  optDateTable.addEventListener('change', updatePreview);
   optSeqStart.addEventListener('input', () => {
     const n = parseInt(optSeqStart.value, 10);
     seqStart = (isNaN(n) || n < 0) ? 1 : n;

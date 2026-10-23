@@ -111,7 +111,7 @@
           </button>
         </div>
         <p class="text-xs text-gray-500 mt-1">รหัสที่จะพิมพ์: <span id="opt-date-code" class="font-bold text-corporate-700 text-sm"></span></p>
-        <p class="text-xs text-gray-500 mt-0.5">รหัส = ตัวอักษรเดือน + รหัสวัน ตามตารางวันที่ระบบ SAP (เช่น 23/10 = KP, 05/01 = A5)</p>
+        <p class="text-xs text-gray-500 mt-0.5">ตามตารางวันที่ระบบ SAP: วันที่ 1-9 พิมพ์เป็นตัวเลข ตั้งแต่ 10 เป็นต้นไปพิมพ์เป็นตัวอักษร</p>
         <p id="opt-date-src" class="text-xs text-gray-400 mt-0.5"></p>
       </div>
       <div>
@@ -267,15 +267,12 @@
   let seqStart = 1;                // เลขลำดับชุดเริ่มต้น (Auto)
   const seqOverride = new Map();   // entry id -> เลขลำดับชุดที่ผู้ใช้แก้เอง (แถวถัดไปจะวิ่งต่อจากเลขนี้)
 
-  // ตารางวันที่ระบบ SAP: เดือน 1-12 = A-M (ไม่มี I)
-  const MONTH_CODES = { 1:'A', 2:'B', 3:'C', 4:'D', 5:'E', 6:'F', 7:'G', 8:'H', 9:'J', 10:'K', 11:'L', 12:'M' };
-  // วันที่ 1-9 เป็นเลข, 10 = A ... 31 = Z (ไม่มี I, O, Q, Y)
+  // ตารางวันที่ระบบ SAP (ตามรูปที่แนบ): 1-9 เป็นเลข, 10 = A, 11 = B ... 31 = Z (ไม่มี I, O, Q, Y)
   const DAY_CODES = { 10:'A', 11:'B', 12:'C', 13:'D', 14:'E', 15:'F', 16:'G', 17:'H', 18:'J', 19:'K',
                       20:'L', 21:'M', 22:'N', 23:'P', 24:'R', 25:'S', 26:'T', 27:'U', 28:'V', 29:'W', 30:'X', 31:'Z' };
 
-  // รหัสวันที่ระบบ SAP = ตัวอักษรเดือน + รหัสวัน เช่น 23/10 -> KP, 05/01 -> A5
-  function dateToCode(month, day) {
-    return MONTH_CODES[month] + (day <= 9 ? String(day) : DAY_CODES[day]);
+  function dayToCode(day) {
+    return day <= 9 ? String(day) : (DAY_CODES[day] || String(day));
   }
 
   function todayInputValue() {
@@ -290,9 +287,10 @@
   function getDateISO() { return parseDateText(optDate.value); }
 
   // รหัสวันที่ปัจจุบันตามช่องวันที่
-  function currentDateCode() {
+  function currentDayCode() {
     const v = getDateISO() || todayInputValue();
-    return dateToCode(parseInt(v.slice(5, 7), 10), parseInt(v.slice(8, 10), 10));
+    const day = parseInt(v.slice(8, 10), 10);
+    return dayToCode(day);
   }
 
   // ---------- ดึงวันที่จากไฟล์ ----------
@@ -1156,10 +1154,10 @@
   // ---------- ข้อความ + QR ----------
   function padSeq(n) { return String(n).padStart(4, '0'); }
 
-  // ข้อความที่พิมพ์บนสติกเกอร์และฝังใน QR: K5/0028 CTC/100 TAUR 0.003 KG
+  // ข้อความที่พิมพ์บนสติกเกอร์และฝังใน QR: 5/0028 CTC/100 TAUR 0.003 KG
   function buildQrText(e, seq, part) {
     part = part || { k: 0, w: e.weightPerSet };
-    return currentDateCode() + '/' + padSeq(seq) + (part.k ? '/' + part.k : '') + ' ' + e.group.shortCode + ' ' + e.shortName + ' ' + fmtW(part.w, unitOf(e)) + ' ' + unitOf(e);
+    return currentDayCode() + '/' + padSeq(seq) + (part.k ? '/' + part.k : '') + ' ' + e.group.shortCode + ' ' + e.shortName + ' ' + fmtW(part.w, unitOf(e)) + ' ' + unitOf(e);
   }
 
   // สร้าง QR เป็น SVG (path เดียว) — ใช้ได้ทั้งหน้าจอและตอนพิมพ์
@@ -1182,7 +1180,7 @@
   }
 
   function updatePreview() {
-    optDateCode.textContent = currentDateCode();
+    optDateCode.textContent = currentDayCode();
     const first = getSelectedEntries()[0];
     if (!first) {
       previewQr.innerHTML = 'QR';
@@ -1281,9 +1279,9 @@
       'pt" font-weight="700" fill="#000" textLength="' + w.toFixed(2) + 'mm" lengthAdjust="spacingAndGlyphs">' + escXml(text) + '</text></svg>';
   }
 
-  function buildTagHtml(e, seq, dateCode, L, part) {
+  function buildTagHtml(e, seq, dayCode, L, part) {
     part = part || { k: 0, w: e.weightPerSet };
-    const lot = dateCode + '/' + padSeq(seq) + (part.k ? '/' + part.k : '');
+    const lot = dayCode + '/' + padSeq(seq) + (part.k ? '/' + part.k : '');
     const weight = fmtW(part.w, unitOf(e)) + ' ' + unitOf(e);
     const qr = qrSvg(buildQrText(e, seq, part), L.qr + 'mm');
     const col = L.dir === 'col';
@@ -1313,13 +1311,13 @@
 
     // ลำดับชุด: ใช้เลขเดียวกับที่แสดงในตาราง (เรียงตามลำดับที่พิมพ์) — แต่ละรายการพิมพ์ตามจำนวนชุดที่เลือก
     const seqMap = computeSeqMap();
-    const dateCode = currentDateCode();
+    const dayCode = currentDayCode();
     const tagCards = [];
     entriesToPrint.forEach(e => {
       const base = seqMap.has(e.id) ? seqMap.get(e.id) : (seqOverride.has(e.id) ? seqOverride.get(e.id) : seqStart);
       const n = getCopies(e);
       const parts = splitParts(e);
-      for (let k = 0; k < n; k++) parts.forEach(pt => tagCards.push(buildTagHtml(e, seqRun ? base + k : base, dateCode, L, pt)));
+      for (let k = 0; k < n; k++) parts.forEach(pt => tagCards.push(buildTagHtml(e, seqRun ? base + k : base, dayCode, L, pt)));
     });
 
     // เติมช่องว่าง (ไม่ซ้ำสติกเกอร์) ให้ครบแผ่น

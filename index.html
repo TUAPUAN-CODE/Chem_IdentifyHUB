@@ -171,6 +171,7 @@
         <span id="ingredient-count" class="text-xs bg-gray-100 text-gray-600 py-1 px-3 rounded-full font-medium"></span>
       </div>
       <div class="flex items-center gap-2 flex-wrap">
+        <input id="ing-search" type="text" placeholder="ค้นหาส่วนผสม เช่น SALT, Glucose..." class="text-sm border border-gray-300 rounded-lg px-3 py-2 w-56">
         <button id="btn-ing-select-all" class="text-xs text-gray-600 border border-gray-200 bg-white hover:bg-gray-50 px-3 py-2 rounded-lg font-medium">เลือกทั้งหมด</button>
         <button id="btn-ing-select-none" class="text-xs text-gray-500 border border-gray-200 bg-white hover:bg-gray-50 px-3 py-2 rounded-lg font-medium">ล้างการเลือก</button>
         <button id="btn-print" class="bg-corporate-600 hover:bg-corporate-700 active:bg-corporate-800 text-white px-5 py-2.5 rounded-lg text-sm font-semibold transition flex items-center gap-2 shadow-sm">
@@ -235,6 +236,7 @@
   const ingredientsPanel = document.getElementById('ingredients-panel');
   const ingredientsTbody = document.getElementById('ingredients-tbody');
   const ingredientCountEl = document.getElementById('ingredient-count');
+  const ingSearch = document.getElementById('ing-search');
   const rawPanel = document.getElementById('raw-panel');
   const rawThead = document.getElementById('raw-thead');
   const rawTbody = document.getElementById('raw-tbody');
@@ -896,16 +898,24 @@
   // ---------- Ingredients table ----------
   const removedIds = new Set(); // ids the user explicitly unchecked, so they stay unchecked on re-render
 
+  // แถวที่ตรงกับช่องค้นหาส่วนผสม (ค้นจากรหัสย่อ/รหัสงาน/ชื่อย่อ/ชื่อเต็ม) — ใช้กรองการแสดงผลเท่านั้น ไม่กระทบรายการที่ถูกเลือก
+  function matchesIngSearch(e) {
+    const q = ingSearch.value.trim().toLowerCase();
+    if (!q) return true;
+    return [e.group.shortCode, e.group.jobCode, e.shortName, e.ingredientName].join(' ').toLowerCase().includes(q);
+  }
+
   function renderIngredients() {
-    const visibleEntries = globalEntries.filter(e => selectedGroupKeys.has(e.group.key));
+    const groupEntries = globalEntries.filter(e => selectedGroupKeys.has(e.group.key));
+    const visibleEntries = groupEntries.filter(matchesIngSearch);
     // drop selections for entries no longer visible (their group got unchecked)
-    selectedEntryIds = new Set([...selectedEntryIds].filter(id => visibleEntries.some(e => e.id === id)));
+    selectedEntryIds = new Set([...selectedEntryIds].filter(id => groupEntries.some(e => e.id === id)));
     // default newly-visible entries to selected, unless the user had explicitly unchecked them before
-    visibleEntries.forEach(e => {
+    groupEntries.forEach(e => {
       if (!selectedEntryIds.has(e.id) && !removedIds.has(e.id)) selectedEntryIds.add(e.id);
     });
 
-    ingredientCountEl.textContent = visibleEntries.length + ' รายการ';
+    ingredientCountEl.textContent = visibleEntries.length === groupEntries.length ? groupEntries.length + ' รายการ' : visibleEntries.length + ' / ' + groupEntries.length + ' รายการ';
 
     ingredientsTbody.innerHTML = visibleEntries.map(e => {
       const checked = selectedEntryIds.has(e.id) ? 'checked' : '';
@@ -1240,12 +1250,13 @@
     updatePreview();
   });
 
+  ingSearch.addEventListener('input', renderIngredients);
   document.getElementById('btn-ing-select-all').addEventListener('click', () => {
-    globalEntries.filter(e => selectedGroupKeys.has(e.group.key)).forEach(e => { selectedEntryIds.add(e.id); removedIds.delete(e.id); });
+    globalEntries.filter(e => selectedGroupKeys.has(e.group.key) && matchesIngSearch(e)).forEach(e => { selectedEntryIds.add(e.id); removedIds.delete(e.id); });
     renderIngredients();
   });
   document.getElementById('btn-ing-select-none').addEventListener('click', () => {
-    globalEntries.filter(e => selectedGroupKeys.has(e.group.key)).forEach(e => { selectedEntryIds.delete(e.id); removedIds.add(e.id); });
+    globalEntries.filter(e => selectedGroupKeys.has(e.group.key) && matchesIngSearch(e)).forEach(e => { selectedEntryIds.delete(e.id); removedIds.add(e.id); });
     renderIngredients();
   });
 

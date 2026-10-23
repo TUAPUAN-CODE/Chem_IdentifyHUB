@@ -678,6 +678,7 @@
   // แก้จำนวนชุด: หาร นน.ที่ใช้ (รวม) เดิมในไฟล์ ด้วยจำนวนชุดที่แก้
   function applyCount(e, v) {
     e.count = v;
+    e.countEdited = true;   // ผู้ใช้กรอกเอง — แบ่งสติกเกอร์ตามจำนวนชุดนี้ แม้ค่าจะเท่ากับในไฟล์
     if (v > 0) {
       // นน.ที่ใช้ (รวม) คงค่าเดิมจากไฟล์เสมอ — ยกเว้นผู้ใช้พิมพ์ "นน.ที่ใช้ (รวม)" เองไว้แล้ว (usedManual) ให้คงค่าที่พิมพ์เอง ไม่ทับ
       if (!e.usedManual) e.weightUsed = e.origUsed;
@@ -691,9 +692,10 @@
 
   // แบ่งสติกเกอร์เป็น /1 /2 ... ตามจำนวนชุดที่แก้ (ถ้าไม่ได้แก้จำนวนชุด = 1 ดวง ไม่มี /ลำดับ)
   // ทุกดวงน้ำหนักเท่ากัน = รวม ÷ จำนวนชุด (เก็บค่าเต็ม ปัดตอนแสดงผลตามหน่วย)
+  function countChanged(e) { return e.countEdited || e.count !== e.group.origCount; }
   function splitParts(e) {
     const n = Math.round(e.count);
-    if (e.count === e.group.origCount || !(n >= 1)) return [{ k: 0, w: e.weightPerSet }];
+    if (!countChanged(e) || !(n >= 1)) return [{ k: 0, w: e.weightPerSet }];
     const parts = [];
     for (let k = 1; k <= n; k++) parts.push({ k: k, w: e.weightPerSet });
     return parts;
@@ -933,7 +935,7 @@
             <option value="G" ${unitOf(e) === 'G' ? 'selected' : ''}>G</option>
           </select>
         </td>
-        <td class="px-4 py-2 text-right whitespace-nowrap">X <input type="number" min="0" step="any" class="ing-count-input w-20 text-right border rounded-md px-2 py-1 text-sm ${e.count !== e.group.origCount ? 'border-amber-400 bg-amber-50' : 'border-gray-300'}" data-id="${escapeHtml(e.id)}" value="${e.count}"></td>
+        <td class="px-4 py-2 text-right whitespace-nowrap">X <input type="number" min="0" step="any" class="ing-count-input w-20 text-right border rounded-md px-2 py-1 text-sm ${countChanged(e) ? 'border-amber-400 bg-amber-50' : 'border-gray-300'}" data-id="${escapeHtml(e.id)}" value="${e.count}"></td>
         <td class="px-4 py-2 text-right whitespace-nowrap"><input type="text" inputmode="decimal" class="used-input w-28 text-right border rounded-md px-2 py-1 text-sm ${e.usedManual ? 'border-amber-400 bg-amber-50' : 'border-gray-300'}" data-id="${escapeHtml(e.id)}" value="${escapeHtml(showUsed(e))}" title="แก้ได้อิสระ ไม่ถูกสูตรหารทับ"></td>
       </tr>`;
     }).join('');
@@ -996,7 +998,7 @@
         const v = toNumber(inp.value);
         if (isNaN(v) || v < 0) { inp.value = e.count; return; }
         applyCount(e, v);
-        const changed = v !== e.group.origCount;
+        const changed = countChanged(e);
         inp.classList.toggle('border-amber-400', changed);
         inp.classList.toggle('bg-amber-50', changed);
         inp.classList.toggle('border-gray-300', !changed);
@@ -1087,10 +1089,11 @@
     // รีเซ็ต X จำนวนชุด (และ นน./ชุด, นน.ที่ใช้) ของแถวที่ไม่ได้ถูกเลือก กลับเป็นค่าเดิม
     let countReset = false;
     globalEntries.forEach(e => {
-      const untouched = e.count === e.group.origCount && e.weightPerSet === e.origPerSet && !e.usedManual && e.unit == null;
+      const untouched = !countChanged(e) && e.weightPerSet === e.origPerSet && !e.usedManual && e.unit == null;
       if (selIds.has(e.id) || untouched) return;
       // คืนค่าดิบจากไฟล์ตรงๆ (ไม่ผ่านสูตรหาร) เมื่อติ๊กออก/ล้างการเลือก — รวมถึงหน่วยและ "นน.ที่ใช้" ที่พิมพ์เอง
       e.count = e.group.origCount;
+      e.countEdited = false;
       e.weightPerSet = e.origPerSet;
       e.weightUsed = e.origUsed;
       e.usedManual = false;
@@ -1101,7 +1104,7 @@
       const ci = q('.ing-count-input');
       if (ci) {
         ci.value = e.count;
-        const ch = e.count !== e.group.origCount;
+        const ch = countChanged(e);
         ci.classList.toggle('border-amber-400', ch);
         ci.classList.toggle('bg-amber-50', ch);
         ci.classList.toggle('border-gray-300', !ch);

@@ -411,7 +411,7 @@
 
   // แปลงน้ำหนัก (ในไฟล์เป็น KG) เป็นหน่วยที่ระบุ: KG = ทศนิยมอย่างน้อย 3 ตำแหน่ง (ไม่ปัดทิ้งค่าเล็กๆ เช่น 0.0014), G = × 1,000
   // unit ไม่ระบุ = ใช้ printUnit (เฉพาะตอนไม่ใช่ AUTO) — ส่วนที่ผูกกับแถวข้อมูลต้องส่ง unitOf(e) มาเสมอ
-  // ไม่ใส่ , คั่นหลักพัน — ใช้กับข้อความที่พิมพ์ลง QR/สติกเกอร์ ต้องเป็นตัวเลขดิบให้ระบบอื่นอ่านต่อได้
+  // ไม่ใส่ , คั่นหลักพัน — ใช้กับข้อความใน QR ต้องเป็นตัวเลขดิบให้ระบบอื่นอ่านต่อได้
   function fmtW(kg, unit) {
     const v = toNumber(kg);
     if (isNaN(v)) return '-';
@@ -426,7 +426,7 @@
     const withCommas = intPart.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
     return (neg ? '-' : '') + withCommas + (decPart ? '.' + decPart : '');
   }
-  // ตัวเลขที่แสดงในตาราง (มี , คั่นหลักพัน) — ห้ามใช้กับข้อความที่ไปพิมพ์ลง QR/สติกเกอร์
+  // ตัวเลขที่แสดงในตารางและข้อความบนสติกเกอร์ (มี , คั่นหลักพัน) — ห้ามใช้กับข้อความที่ฝังใน QR
   function fmtWC(kg, unit) {
     const s = fmtW(kg, unit);
     return s === '-' ? s : addThousandsCommas(s);
@@ -1296,7 +1296,8 @@
   function buildTagHtml(e, seq, dayCode, L, part) {
     part = part || { k: 0, w: e.weightPerSet };
     const lot = dayCode + '/' + padSeq(seq) + (part.k ? '/' + part.k : '');
-    const weight = fmtW(part.w, unitOf(e)) + ' ' + unitOf(e);
+    // ข้อความบนสติกเกอร์ใส่ , คั่นหลักพัน (QR ยังเป็นตัวเลขดิบ)
+    const weight = fmtWC(part.w, unitOf(e)) + ' ' + unitOf(e);
     const qr = qrSvg(buildQrText(e, seq, part), L.qr + 'mm');
     const col = L.dir === 'col';
     const sideW = col ? (L.tagW - 2 * L.padX) : (L.tagW - 2 * L.padX - L.qr - L.gap);

@@ -444,6 +444,8 @@
   }
   // ข้อความที่พิมพ์เองไว้ (usedText) แสดงตามที่พิมพ์ทุกตัวอักษร ไม่ปัด ไม่แปลงหน่วยซ้ำ — ไม่มี = ฟอร์แมตจาก weightUsed ตามหน่วยปัจจุบัน
   function showUsed(e) { return e.usedText != null ? e.usedText : fmtWC(e.weightUsed, unitOf(e)); }
+  // นน./ชุด: เหมือน showUsed — ข้อความที่พิมพ์เอง (perText) แสดงตามที่พิมพ์ ไม่มี = ฟอร์แมตจาก weightPerSet
+  function showPer(e) { return e.perText != null ? e.perText : fmtWC(e.weightPerSet, unitOf(e)); }
 
   // ---------- File loading ----------
   ['dragover', 'dragleave', 'drop'].forEach(evt => {
@@ -665,7 +667,9 @@
           weightUsed: isNaN(wUsed) ? (wPerSet * g.count) : wUsed,
           unit: null,          // null = ใช้หน่วยของงาน (g.unit) ตอน AUTO — แก้รายแถวได้
           usedManual: false,   // true = ผู้ใช้พิมพ์ "นน.ที่ใช้ (รวม)" เองอิสระ ไม่ให้สูตรหารมาทับ
-          usedText: null       // ข้อความที่พิมพ์เอง (แสดงตามที่พิมพ์ทุกตัวอักษร)
+          usedText: null,      // ข้อความที่พิมพ์เอง (แสดงตามที่พิมพ์ทุกตัวอักษร)
+          perManual: false,    // true = ผู้ใช้พิมพ์ "นน./ชุด" เอง (จนกว่าจะแก้จำนวนชุดใหม่)
+          perText: null        // ข้อความ นน./ชุด ที่พิมพ์เอง
         });
         const ne = entries[entries.length - 1];
         ne.origPerSet = ne.weightPerSet;
@@ -680,6 +684,8 @@
   // แก้จำนวนชุด: หาร นน.ที่ใช้ (รวม) เดิมในไฟล์ ด้วยจำนวนชุดที่แก้
   function applyCount(e, v) {
     e.count = v;
+    e.perManual = false;
+    e.perText = null;
     e.countEdited = true;   // ผู้ใช้กรอกเอง — แบ่งสติกเกอร์ตามจำนวนชุดนี้ แม้ค่าจะเท่ากับในไฟล์
     if (v > 0) {
       // นน.ที่ใช้ (รวม) คงค่าเดิมจากไฟล์เสมอ — ยกเว้นผู้ใช้พิมพ์ "นน.ที่ใช้ (รวม)" เองไว้แล้ว (usedManual) ให้คงค่าที่พิมพ์เอง ไม่ทับ
@@ -939,7 +945,7 @@
         <td class="px-4 py-2">${escapeHtml(e.shortName)}</td>
         <td class="px-4 py-2 text-gray-500">${escapeHtml(e.ingredientName)}</td>
         <td class="px-4 py-2 text-right whitespace-nowrap">
-          <span class="per-cell" data-id="${escapeHtml(e.id)}">${fmtWC(e.weightPerSet, unitOf(e))}</span>
+          <input type="text" inputmode="decimal" class="per-input w-24 text-right border rounded-md px-2 py-1 text-sm ${e.perManual ? 'border-amber-400 bg-amber-50' : 'border-gray-300'}" data-id="${escapeHtml(e.id)}" value="${escapeHtml(showPer(e))}" title="นน./ชุด — แก้ได้ (แก้จำนวนชุดแล้วจะคำนวณใหม่)">
           <select class="ing-unit-select text-xs border rounded-md px-1 py-1 ml-1 ${unitOf(e) === 'G' ? 'border-amber-400 bg-amber-50 text-amber-700 font-semibold' : 'border-gray-300 bg-white'}" data-id="${escapeHtml(e.id)}" ${printUnit !== 'AUTO' ? 'disabled' : ''} title="หน่วยของแถวนี้ (ตรวจอัตโนมัติจากไฟล์ แก้เองได้)">
             <option value="KG" ${unitOf(e) === 'KG' ? 'selected' : ''}>KG</option>
             <option value="G" ${unitOf(e) === 'G' ? 'selected' : ''}>G</option>
@@ -991,6 +997,33 @@
       });
     });
 
+    const updatePerCell = (e) => {
+      const c = ingredientsTbody.querySelector('.per-input[data-id="' + e.id + '"]');
+      if (c) {
+        c.value = showPer(e);
+        c.classList.toggle('border-amber-400', e.perManual);
+        c.classList.toggle('bg-amber-50', e.perManual);
+        c.classList.toggle('border-gray-300', !e.perManual);
+      }
+    };
+
+    ingredientsTbody.querySelectorAll('.per-input').forEach(inp => {
+      const commit = () => {
+        const e = globalEntries.find(x => x.id === inp.getAttribute('data-id'));
+        if (!e) return;
+        const v = parseWInput(inp.value, unitOf(e));
+        if (isNaN(v) || v < 0) { inp.value = showPer(e); return; }
+        e.weightPerSet = v;
+        e.perText = inp.value.trim();
+        e.perManual = true;
+        updatePerCell(e);
+        updatePreview();
+        updatePrintLabel();
+      };
+      inp.addEventListener('change', commit);
+      inp.addEventListener('keydown', (ev) => { if (ev.key === 'Enter') { ev.preventDefault(); commit(); } });
+    });
+
     const updateUsedCell = (e) => {
       const c = ingredientsTbody.querySelector('.used-input[data-id="' + e.id + '"]');
       if (c) {
@@ -1013,8 +1046,7 @@
         inp.classList.toggle('bg-amber-50', changed);
         inp.classList.toggle('border-gray-300', !changed);
         updateUsedCell(e);
-        const pc = ingredientsTbody.querySelector('.per-cell[data-id="' + e.id + '"]');
-        if (pc) pc.textContent = fmtWC(e.weightPerSet, unitOf(e));
+        updatePerCell(e);
         updatePreview();
         updatePrintLabel();
       };
@@ -1028,6 +1060,7 @@
         const e = globalEntries.find(x => x.id === sel.getAttribute('data-id'));
         if (!e) return;
         e.unit = sel.value === 'G' ? 'G' : 'KG';
+        e.perText = null;   // ฟอร์แมต นน./ชุด ใหม่ตามหน่วยที่เปลี่ยน (ค่า weightPerSet คงเดิม)
         renderIngredients();
       });
     });
@@ -1105,6 +1138,8 @@
       e.count = e.group.origCount;
       e.countEdited = false;
       e.weightPerSet = e.origPerSet;
+      e.perManual = false;
+      e.perText = null;
       e.weightUsed = e.origUsed;
       e.usedManual = false;
       e.usedText = null;
@@ -1125,7 +1160,12 @@
         uc.classList.remove('border-amber-400', 'bg-amber-50');
         uc.classList.add('border-gray-300');
       }
-      const pc = q('.per-cell'); if (pc) pc.textContent = fmtWC(e.weightPerSet, unitOf(e));
+      const pc = q('.per-input');
+      if (pc) {
+        pc.value = showPer(e);
+        pc.classList.remove('border-amber-400', 'bg-amber-50');
+        pc.classList.add('border-gray-300');
+      }
       const us = q('.ing-unit-select'); if (us) us.value = unitOf(e);
     });
     if (countReset) { updatePreview(); updatePrintLabel(); }

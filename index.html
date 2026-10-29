@@ -183,16 +183,16 @@
       <table class="min-w-full text-sm">
         <thead class="bg-gray-50 sticky top-0">
           <tr class="text-left text-gray-600">
-            <th class="px-4 py-2 w-8"></th>
+            <th class="px-2 py-2 w-8"></th>
             <th class="px-2 py-2 w-10"></th>
             <th class="px-2 py-2 text-right whitespace-nowrap">ลำดับชุด</th>
             <th class="px-2 py-2 text-right whitespace-nowrap">พิมพ์กี่ชุด</th>
-            <th class="px-4 py-2">รหัสย่อ</th>
-            <th class="px-4 py-2">ชื่อย่อส่วนผสม</th>
-            <th class="px-4 py-2">ชื่อเต็ม</th>
-            <th class="px-4 py-2 text-right whitespace-nowrap">นน./ชุด <span class="unit-label"></span></th>
-            <th class="px-4 py-2 text-right">X จำนวนชุด</th>
-            <th class="px-4 py-2 text-right whitespace-nowrap">นน.ที่ใช้ (รวม) <span class="unit-label"></span></th>
+            <th class="px-2 py-2">รหัสย่อ</th>
+            <th class="px-2 py-2 whitespace-nowrap">ชื่อย่อ</th>
+            <th class="px-2 py-2">ชื่อเต็ม</th>
+            <th class="px-2 py-2 text-right whitespace-nowrap">นน./ชุด <span class="unit-label"></span></th>
+            <th class="px-2 py-2 text-right whitespace-nowrap">X จำนวนชุด</th>
+            <th class="px-2 py-2 text-right whitespace-nowrap">นน.ที่ใช้ (รวม) <span class="unit-label"></span></th>
           </tr>
         </thead>
         <tbody id="ingredients-tbody"></tbody>
@@ -669,6 +669,7 @@
           usedManual: false,   // true = ผู้ใช้พิมพ์ "นน.ที่ใช้ (รวม)" เองอิสระ ไม่ให้สูตรหารมาทับ
           usedText: null,      // ข้อความที่พิมพ์เอง (แสดงตามที่พิมพ์ทุกตัวอักษร)
           perManual: false,    // true = ผู้ใช้พิมพ์ "นน./ชุด" เอง (จนกว่าจะแก้จำนวนชุดใหม่)
+          perBase: null,       // นน./ชุด ที่ผู้ใช้กรอก ใช้เป็นตัวตั้งหารจำนวนชุด (null = ใช้ origPerSet)
           perText: null        // ข้อความ นน./ชุด ที่พิมพ์เอง
         });
         const ne = entries[entries.length - 1];
@@ -684,16 +685,17 @@
   // แก้จำนวนชุด: หาร นน.ที่ใช้ (รวม) เดิมในไฟล์ ด้วยจำนวนชุดที่แก้
   function applyCount(e, v) {
     e.count = v;
-    e.perManual = false;
-    e.perText = null;
+    e.perText = null;   // แสดงค่าที่คำนวณใหม่ (perManual/perBase คงไว้ให้ใช้เป็นตัวตั้ง)
     e.countEdited = true;   // ผู้ใช้กรอกเอง — แบ่งสติกเกอร์ตามจำนวนชุดนี้ แม้ค่าจะเท่ากับในไฟล์
     if (v > 0) {
       // นน.ที่ใช้ (รวม) คงค่าเดิมจากไฟล์เสมอ — ยกเว้นผู้ใช้พิมพ์ "นน.ที่ใช้ (รวม)" เองไว้แล้ว (usedManual) ให้คงค่าที่พิมพ์เอง ไม่ทับ
       if (!e.usedManual) e.weightUsed = e.origUsed;
       // นน./ชุด เดิมจากไฟล์ เป็นตัวตั้ง ÷ จำนวนชุดที่แก้ (เช่น 0.569 ÷ 2 = 0.2845, ÷ 1 = 0.569)
-      e.weightPerSet = Number((e.origPerSet / v).toPrecision(12));
+      // ถ้าผู้ใช้กรอก นน./ชุด เอง ใช้ค่าที่กรอกเป็นตัวตั้ง ไม่เช่นนั้นใช้ค่าเดิมจากไฟล์
+      const base = e.perBase != null ? e.perBase : e.origPerSet;
+      e.weightPerSet = Number((base / v).toPrecision(12));
     } else {
-      e.weightPerSet = e.origPerSet;
+      e.weightPerSet = e.perBase != null ? e.perBase : e.origPerSet;
       if (!e.usedManual) e.weightUsed = 0;
     }
   }
@@ -926,7 +928,7 @@
     ingredientsTbody.innerHTML = visibleEntries.map(e => {
       const checked = selectedEntryIds.has(e.id) ? 'checked' : '';
       return `<tr class="border-t border-gray-100 hover:bg-gray-50">
-        <td class="px-4 py-2"><input type="checkbox" class="ing-checkbox rounded border-gray-300 text-corporate-600 focus:ring-corporate-500" data-id="${escapeHtml(e.id)}" ${checked}></td>
+        <td class="px-2 py-2"><input type="checkbox" class="ing-checkbox rounded border-gray-300 text-corporate-600 focus:ring-corporate-500" data-id="${escapeHtml(e.id)}" ${checked}></td>
         <td class="px-2 py-2">
           <button type="button" class="ing-print-row bg-white border border-gray-200 hover:bg-corporate-600 hover:border-corporate-600 text-corporate-600 hover:text-white w-8 h-8 rounded-lg transition flex items-center justify-center" data-id="${escapeHtml(e.id)}" title="พิมพ์สติกเกอร์เฉพาะรายการนี้">
             <i class="ph-fill ph-printer text-base"></i>
@@ -941,18 +943,18 @@
         <td class="px-2 py-2 text-right whitespace-nowrap">
           <input type="number" min="1" max="999" step="1" class="copies-input w-16 text-right border rounded-md px-2 py-1 text-sm ${getCopies(e) > 1 ? 'border-amber-400 bg-amber-50' : 'border-gray-300'}" data-id="${escapeHtml(e.id)}" value="${getCopies(e)}" title="จำนวนสติกเกอร์ (ชุด) ที่จะพิมพ์ของรายการนี้">
         </td>
-        <td class="px-4 py-2 font-semibold text-corporate-700">${escapeHtml(e.group.shortCode)}</td>
-        <td class="px-4 py-2">${escapeHtml(e.shortName)}</td>
-        <td class="px-4 py-2 text-gray-500">${escapeHtml(e.ingredientName)}</td>
-        <td class="px-4 py-2 text-right whitespace-nowrap">
-          <input type="text" inputmode="decimal" class="per-input w-24 text-right border rounded-md px-2 py-1 text-sm ${e.perManual ? 'border-amber-400 bg-amber-50' : 'border-gray-300'}" data-id="${escapeHtml(e.id)}" value="${escapeHtml(showPer(e))}" title="นน./ชุด — แก้ได้ (แก้จำนวนชุดแล้วจะคำนวณใหม่)">
+        <td class="px-2 py-2 font-semibold text-corporate-700 whitespace-nowrap">${escapeHtml(e.group.shortCode)}</td>
+        <td class="px-2 py-2 whitespace-nowrap">${escapeHtml(e.shortName)}</td>
+        <td class="px-2 py-2 text-gray-500 max-w-[12rem] truncate" title="${escapeHtml(e.ingredientName)}">${escapeHtml(e.ingredientName)}</td>
+        <td class="px-2 py-2 text-right whitespace-nowrap">
+          <input type="text" inputmode="decimal" class="per-input w-20 text-right border rounded-md px-2 py-1 text-sm ${e.perManual ? 'border-amber-400 bg-amber-50' : 'border-gray-300'}" data-id="${escapeHtml(e.id)}" value="${escapeHtml(showPer(e))}" title="นน./ชุด — แก้ได้ (แก้จำนวนชุดแล้วจะคำนวณใหม่)">
           <select class="ing-unit-select text-xs border rounded-md px-1 py-1 ml-1 ${unitOf(e) === 'G' ? 'border-amber-400 bg-amber-50 text-amber-700 font-semibold' : 'border-gray-300 bg-white'}" data-id="${escapeHtml(e.id)}" ${printUnit !== 'AUTO' ? 'disabled' : ''} title="หน่วยของแถวนี้ (ตรวจอัตโนมัติจากไฟล์ แก้เองได้)">
             <option value="KG" ${unitOf(e) === 'KG' ? 'selected' : ''}>KG</option>
             <option value="G" ${unitOf(e) === 'G' ? 'selected' : ''}>G</option>
           </select>
         </td>
-        <td class="px-4 py-2 text-right whitespace-nowrap">X <input type="number" min="0" step="any" class="ing-count-input w-20 text-right border rounded-md px-2 py-1 text-sm ${countChanged(e) ? 'border-amber-400 bg-amber-50' : 'border-gray-300'}" data-id="${escapeHtml(e.id)}" value="${e.count}"></td>
-        <td class="px-4 py-2 text-right whitespace-nowrap"><input type="text" inputmode="decimal" class="used-input w-28 text-right border rounded-md px-2 py-1 text-sm ${e.usedManual ? 'border-amber-400 bg-amber-50' : 'border-gray-300'}" data-id="${escapeHtml(e.id)}" value="${escapeHtml(showUsed(e))}" title="แก้ได้อิสระ ไม่ถูกสูตรหารทับ"></td>
+        <td class="px-2 py-2 text-right whitespace-nowrap">X <input type="number" min="0" step="any" class="ing-count-input w-16 text-right border rounded-md px-2 py-1 text-sm ${countChanged(e) ? 'border-amber-400 bg-amber-50' : 'border-gray-300'}" data-id="${escapeHtml(e.id)}" value="${e.count}"></td>
+        <td class="px-2 py-2 text-right whitespace-nowrap"><input type="text" inputmode="decimal" class="used-input w-24 text-right border rounded-md px-2 py-1 text-sm ${e.usedManual ? 'border-amber-400 bg-amber-50' : 'border-gray-300'}" data-id="${escapeHtml(e.id)}" value="${escapeHtml(showUsed(e))}" title="แก้ได้อิสระ ไม่ถูกสูตรหารทับ"></td>
       </tr>`;
     }).join('');
 
@@ -1016,6 +1018,7 @@
         e.weightPerSet = v;
         e.perText = inp.value.trim();
         e.perManual = true;
+        e.perBase = v;   // ตัวตั้งใหม่สำหรับหารด้วยจำนวนชุด
         updatePerCell(e);
         updatePreview();
         updatePrintLabel();
@@ -1139,6 +1142,7 @@
       e.countEdited = false;
       e.weightPerSet = e.origPerSet;
       e.perManual = false;
+      e.perBase = null;
       e.perText = null;
       e.weightUsed = e.origUsed;
       e.usedManual = false;
